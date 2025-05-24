@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Header } from './components/header';
+import Header from './components/header';
 import Hero1 from './components/hero1';
-import Hero2 from './components/hero2';
 import Footer from './components/footer';
 import StoriesList from './components/StoriesList';
 import VideosList from './components/VideosList';
+import TrendingStories from './components/TrendingStories';
 import AgeGroupFilter from './components/AgeGroupFilter';
 import UserTracker from './components/UserTracker';
 import Link from 'next/link';
@@ -22,8 +22,11 @@ export default function Home() {
     <div>
       <UserTracker ageGroup={selectedAgeGroup as '0-3' | '3-6' | '6-9' | '9-12'} contentType="general" />
       <Header />
-      <Hero1 />
-      <Hero2 />
+      <div className="pt-20"> {/* Add padding for fixed header */}
+        <Hero1 />
+
+        {/* Trending Stories Section */}
+        <TrendingStories selectedAgeGroup={selectedAgeGroup} />
 
       <div className="container mx-auto px-4 py-8">
         <AgeGroupFilter
@@ -32,12 +35,38 @@ export default function Home() {
         />
 
         <div className="space-y-12">
-          <StoriesList selectedAgeGroup={selectedAgeGroup} />
-          <VideosList selectedAgeGroup={selectedAgeGroup} />
+          <StoriesList selectedAgeGroup={selectedAgeGroup} showAdminContent={true} />
+          <VideosList selectedAgeGroup={selectedAgeGroup} showAdminContent={true} />
         </div>
 
         {/* Featured Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mt-16 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 mb-12">
+          <div className="bg-indigo-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-bold text-indigo-700 mb-3">For Educators</h3>
+            <p className="text-gray-600 mb-4">
+              Professional dashboard with real-time classroom management and student progress tracking.
+            </p>
+            <Link
+              href="/educators"
+              className="inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              Educator Portal
+            </Link>
+          </div>
+
+          <div className="bg-pink-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-bold text-pink-700 mb-3">For Families</h3>
+            <p className="text-gray-600 mb-4">
+              Safe family hub with real-time monitoring and interactive learning experiences.
+            </p>
+            <Link
+              href="/families"
+              className="inline-block bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700 transition-colors"
+            >
+              Family Hub
+            </Link>
+          </div>
+
           <div className="bg-blue-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
             <h3 className="text-xl font-bold text-blue-700 mb-3">Age-Based Content</h3>
             <p className="text-gray-600 mb-4">
@@ -117,11 +146,10 @@ export default function Home() {
           </div>
         </div>
 
-
-
       </div>
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 }

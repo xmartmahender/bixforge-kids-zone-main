@@ -2,9 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import { Video, getVideos } from '../../lib/videoService';
 
-export default function VideosList({ selectedAgeGroup = '' }) {
+interface VideosListProps {
+  selectedAgeGroup?: string;
+  showAdminContent?: boolean;
+}
+
+export default function VideosList({ selectedAgeGroup = '', showAdminContent = false }: VideosListProps) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -13,8 +20,50 @@ export default function VideosList({ selectedAgeGroup = '' }) {
     const fetchVideos = async () => {
       try {
         setLoading(true);
-        const videosData = await getVideos(selectedAgeGroup, 10);
-        setVideos(videosData);
+
+        if (showAdminContent) {
+          // Fetch admin-created videos from Firebase
+          const videosQuery = query(
+            collection(db, 'videos'),
+            orderBy('createdAt', 'desc')
+          );
+
+          const querySnapshot = await getDocs(videosQuery);
+          const adminVideos: Video[] = [];
+
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Only include non-disabled videos
+            if (!data.disabled) {
+              adminVideos.push({
+                id: doc.id,
+                title: data.title || 'Untitled Video',
+                description: data.description || 'No description available',
+                ageGroup: data.ageGroup || '3-6',
+                videoUrl: data.videoUrl || '',
+                thumbnailUrl: data.thumbnailUrl,
+                isCodeVideo: data.isCodeVideo || false,
+                programmingLanguage: data.programmingLanguage,
+                disabled: data.disabled || false,
+                featured: data.featured || false,
+                createdAt: data.createdAt,
+                updatedAt: data.updatedAt
+              });
+            }
+          });
+
+          // Filter by age group if specified
+          const filteredVideos = selectedAgeGroup
+            ? adminVideos.filter(video => video.ageGroup === selectedAgeGroup)
+            : adminVideos;
+
+          setVideos(filteredVideos);
+        } else {
+          // Use existing video service for mock data
+          const videosData = await getVideos(selectedAgeGroup, 10);
+          setVideos(videosData);
+        }
+
         setError('');
       } catch (err) {
         console.error('Error fetching videos:', err);
@@ -25,7 +74,7 @@ export default function VideosList({ selectedAgeGroup = '' }) {
     };
 
     fetchVideos();
-  }, [selectedAgeGroup]);
+  }, [selectedAgeGroup, showAdminContent]);
 
   if (loading) {
     return <div className="p-4 text-center">Loading videos...</div>;
@@ -37,7 +86,12 @@ export default function VideosList({ selectedAgeGroup = '' }) {
 
   if (videos.length === 0) {
     return <div className="p-4 text-center">
-      {selectedAgeGroup ? `No videos found for age group ${selectedAgeGroup}.` : 'No videos found.'}
+      {showAdminContent
+        ? 'No videos have been added by the admin yet. Check back later!'
+        : selectedAgeGroup
+          ? `No videos found for age group ${selectedAgeGroup}.`
+          : 'No videos found.'
+      }
     </div>;
   }
 

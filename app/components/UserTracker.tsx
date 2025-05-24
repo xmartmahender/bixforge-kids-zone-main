@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   registerUserSession,
@@ -21,33 +21,33 @@ export default function UserTracker({ ageGroup, contentType, contentId }: UserTr
   const lastPageRef = useRef<string>('');
 
   // Auto-detect age group from URL if not provided
-  const detectAgeGroup = (path: string): '0-3' | '3-6' | '6-9' | '9-12' | undefined => {
+  const detectAgeGroup = useCallback((path: string): '0-3' | '3-6' | '6-9' | '9-12' | undefined => {
     if (ageGroup) return ageGroup;
     if (path.includes('0-3') || path.includes('babies') || path.includes('toddlers')) return '0-3';
     if (path.includes('3-6') || path.includes('preschool')) return '3-6';
     if (path.includes('6-9') || path.includes('elementary')) return '6-9';
     if (path.includes('9-12') || path.includes('tweens') || path.includes('code')) return '9-12';
     return undefined;
-  };
+  }, [ageGroup]);
 
   // Auto-detect content type from URL if not provided
-  const detectContentType = (path: string): 'story' | 'video' | 'code' | 'general' => {
+  const detectContentType = useCallback((path: string): 'story' | 'video' | 'code' | 'general' => {
     if (contentType) return contentType;
     if (path.includes('/stories/') || path.includes('/story/')) return 'story';
     if (path.includes('/videos/') || path.includes('/video/')) return 'video';
     if (path.includes('/code/') || path.includes('/coding/') || path.includes('/programming/')) return 'code';
     return 'general';
-  };
+  }, [contentType]);
 
   // Auto-extract content ID from URL if not provided
-  const extractContentId = (path: string): string | undefined => {
+  const extractContentId = useCallback((path: string): string | undefined => {
     if (contentId) return contentId;
     const segments = path.split('/');
     if (segments.length >= 3 && (segments[1] === 'stories' || segments[1] === 'videos' || segments[1] === 'code')) {
       return segments[2];
     }
     return undefined;
-  };
+  }, [contentId]);
 
   // Initialize tracking on mount
   useEffect(() => {
@@ -92,7 +92,7 @@ export default function UserTracker({ ageGroup, contentType, contentId }: UserTr
         cleanup();
       }
     };
-  }, []);
+  }, [pathname, detectAgeGroup, detectContentType, extractContentId]);
 
   // Track page changes
   useEffect(() => {
@@ -131,7 +131,7 @@ export default function UserTracker({ ageGroup, contentType, contentId }: UserTr
 
       handlePageChange();
     }
-  }, [pathname, ageGroup, contentType, contentId]);
+  }, [pathname, ageGroup, contentType, contentId, detectAgeGroup, detectContentType, extractContentId]);
 
   // Track user interactions
   useEffect(() => {
@@ -170,7 +170,7 @@ export default function UserTracker({ ageGroup, contentType, contentId }: UserTr
       window.removeEventListener('content-shared', handleShare);
       window.removeEventListener('content-completed', handleComplete);
     };
-  }, [pathname]);
+  }, [pathname, detectAgeGroup, detectContentType, extractContentId]);
 
   return null; // This component doesn't render anything
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Header } from '../components/header';
+import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from 'next/link';
 import UserTracker from '../components/UserTracker';
@@ -23,7 +23,7 @@ export default function AdminPostsPage() {
           getAdminPosts(20), // Get more admin stories
           getAdminVideoPosts(20) // Get more admin videos
         ]);
-        
+
         setAdminStories(storiesData);
         setAdminVideos(videosData);
         setError('');
@@ -38,14 +38,14 @@ export default function AdminPostsPage() {
     fetchAdminPosts();
   }, []);
 
-  const filteredStories = adminStories.filter(story => 
-    activeTab === 'all' || 
+  const filteredStories = adminStories.filter(story =>
+    activeTab === 'all' ||
     (activeTab === 'featured' && story.featured) ||
     (activeTab === 'code' && story.isCodeStory)
   );
 
-  const filteredVideos = adminVideos.filter(video => 
-    activeTab === 'all' || 
+  const filteredVideos = adminVideos.filter(video =>
+    activeTab === 'all' ||
     (activeTab === 'featured' && video.featured) ||
     (activeTab === 'code' && video.isCodeVideo)
   );
@@ -117,8 +117,8 @@ export default function AdminPostsPage() {
                     <Link href={`/stories/${story.id}`} key={story.id}>
                       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
                         <div className="relative h-48 w-full">
-                          <img 
-                            src={story.imageUrl || 'https://placehold.co/400x300/png?text=Story'} 
+                          <img
+                            src={story.imageUrl || 'https://placehold.co/400x300/png?text=Story'}
                             alt={story.title}
                             className="w-full h-full object-cover"
                           />
@@ -159,13 +159,13 @@ export default function AdminPostsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {filteredVideos.map(video => {
                     const videoId = getYouTubeVideoId(video.videoUrl);
-                    
+
                     return (
                       <Link href={`/videos/${video.id}`} key={video.id}>
                         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
                           <div className="relative h-48 w-full">
-                            <img 
-                              src={video.thumbnailUrl || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` || 'https://placehold.co/400x300/png?text=Video'} 
+                            <img
+                              src={video.thumbnailUrl || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` || 'https://placehold.co/400x300/png?text=Video'}
                               alt={video.title}
                               className="w-full h-full object-cover"
                             />

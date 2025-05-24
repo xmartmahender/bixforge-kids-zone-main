@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Header } from '../components/header';
+import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from 'next/link';
 import UserTracker from '../components/UserTracker';
@@ -231,8 +231,8 @@ Stories that will never get old.`,
               {filteredPoems.map(poem => (
                 <div key={poem.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                   <div className="relative h-48">
-                    <img 
-                      src={poem.illustration} 
+                    <img
+                      src={poem.illustration}
                       alt={poem.title}
                       className="w-full h-full object-cover"
                     />
@@ -240,7 +240,7 @@ Stories that will never get old.`,
                       {poem.ageGroup}
                     </div>
                   </div>
-                  
+
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-xl font-bold text-purple-800">{poem.title}</h3>
@@ -248,13 +248,13 @@ Stories that will never get old.`,
                         {poem.theme}
                       </span>
                     </div>
-                    
+
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg mb-4">
                       <pre className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap font-serif">
                         {poem.content}
                       </pre>
                     </div>
-                    
+
                     <div className="flex items-center justify-between text-sm text-gray-500">
                       <span>By {poem.author}</span>
                       <div className="flex items-center space-x-2">
@@ -277,14 +277,14 @@ Stories that will never get old.`,
               Explore our collection of interactive stories and educational videos too!
             </p>
             <div className="space-x-4">
-              <Link 
-                href="/stories" 
+              <Link
+                href="/stories"
                 className="inline-block bg-white text-purple-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors"
               >
                 Read Stories
               </Link>
-              <Link 
-                href="/videos" 
+              <Link
+                href="/videos"
                 className="inline-block bg-purple-800 text-white px-6 py-3 rounded-md font-semibold hover:bg-purple-900 transition-colors"
               >
                 Watch Videos

@@ -35,6 +35,22 @@ export type Story = {
   };
 }
 
+export type TrendingStory = {
+  id?: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  ageGroup: string;
+  category?: string[];
+  views: number;
+  likes: number;
+  priority: number; // Higher number = higher priority in trending
+  isActive: boolean;
+  storyId?: string; // Reference to original story if it exists
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
 export const getStories = async (ageGroup?: string, limitCount = 10) => {
   try {
     // Get all stories first, then filter in memory to avoid complex Firebase queries
@@ -219,6 +235,168 @@ export const deleteStory = async (id: string, imageUrl?: string) => {
     return true;
   } catch (error) {
     console.error("Error deleting story: ", error);
+    throw error;
+  }
+};
+
+// Trending Stories Functions
+export const getTrendingStories = async (limitCount = 6) => {
+  try {
+    console.log('getTrendingStories: Starting to fetch trending stories...');
+
+    const q = query(
+      collection(db, "trending_stories"),
+      orderBy("priority", "desc")
+    );
+
+    const querySnapshot = await getDocs(q);
+    console.log('getTrendingStories: Query completed, total documents:', querySnapshot.size);
+
+    const trendingStories: TrendingStory[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const storyData = { id: doc.id, ...doc.data() } as TrendingStory;
+
+      // Only include active trending stories
+      if (storyData.isActive === true) {
+        trendingStories.push(storyData);
+        console.log(`getTrendingStories: Added trending story: ${storyData.title}`);
+      }
+    });
+
+    console.log(`getTrendingStories: Found ${trendingStories.length} active trending stories`);
+
+    // Sort by priority (highest first), then by views, then by creation date
+    trendingStories.sort((a, b) => {
+      // Priority first
+      if (a.priority !== b.priority) return b.priority - a.priority;
+
+      // Then by views
+      if (a.views !== b.views) return b.views - a.views;
+
+      // Then by creation date (newest first)
+      if (a.createdAt && b.createdAt) {
+        return b.createdAt.seconds - a.createdAt.seconds;
+      }
+      return 0;
+    });
+
+    const result = trendingStories.slice(0, limitCount);
+    console.log(`getTrendingStories: Returning ${result.length} trending stories`);
+    return result;
+  } catch (error) {
+    console.error("Error getting trending stories: ", error);
+    throw error;
+  }
+};
+
+export const addTrendingStory = async (trendingStory: Omit<TrendingStory, 'id' | 'createdAt' | 'updatedAt'>, coverFile?: File) => {
+  try {
+    // Handle cover image upload if provided
+    let imageUrl = trendingStory.imageUrl || '';
+
+    if (coverFile) {
+      const fileName = `trending_${Date.now()}_${coverFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const storageRef = ref(storage, `trending_covers/${fileName}`);
+
+      await uploadBytes(storageRef, coverFile);
+      imageUrl = await getDownloadURL(storageRef);
+    }
+
+    const storyData = {
+      ...trendingStory,
+      imageUrl,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now()
+    };
+
+    const docRef = await addDoc(collection(db, "trending_stories"), storyData);
+    return { id: docRef.id, ...storyData };
+  } catch (error) {
+    console.error("Error adding trending story: ", error);
+    throw error;
+  }
+};
+
+export const updateTrendingStory = async (id: string, trendingStory: Partial<TrendingStory>, coverFile?: File) => {
+  try {
+    // Handle cover image upload if provided
+    let imageUrl = trendingStory.imageUrl;
+
+    if (coverFile) {
+      const fileName = `trending_${Date.now()}_${coverFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const storageRef = ref(storage, `trending_covers/${fileName}`);
+
+      await uploadBytes(storageRef, coverFile);
+      imageUrl = await getDownloadURL(storageRef);
+    }
+
+    const storyData = {
+      ...trendingStory,
+      ...(imageUrl && { imageUrl }),
+      updatedAt: Timestamp.now()
+    };
+
+    await updateDoc(doc(db, "trending_stories", id), storyData);
+    return { id, ...storyData };
+  } catch (error) {
+    console.error("Error updating trending story: ", error);
+    throw error;
+  }
+};
+
+export const deleteTrendingStory = async (id: string, imageUrl?: string) => {
+  try {
+    // Delete cover image from storage if it's a Firebase URL
+    if (imageUrl && imageUrl.includes("firebasestorage")) {
+      try {
+        const imageRef = ref(storage, imageUrl);
+        await deleteObject(imageRef);
+      } catch (err) {
+        console.error("Error deleting trending story cover image", err);
+      }
+    }
+
+    // Delete trending story document
+    await deleteDoc(doc(db, "trending_stories", id));
+    return true;
+  } catch (error) {
+    console.error("Error deleting trending story: ", error);
+    throw error;
+  }
+};
+
+export const getAllTrendingStories = async () => {
+  try {
+    const q = query(
+      collection(db, "trending_stories"),
+      orderBy("priority", "desc")
+    );
+
+    const querySnapshot = await getDocs(q);
+    const trendingStories: TrendingStory[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const storyData = { id: doc.id, ...doc.data() } as TrendingStory;
+      trendingStories.push(storyData);
+    });
+
+    return trendingStories;
+  } catch (error) {
+    console.error("Error getting all trending stories: ", error);
+    throw error;
+  }
+};
+
+export const toggleTrendingStoryStatus = async (id: string, isActive: boolean) => {
+  try {
+    await updateDoc(doc(db, "trending_stories", id), {
+      isActive,
+      updatedAt: Timestamp.now()
+    });
+    return true;
+  } catch (error) {
+    console.error("Error toggling trending story status: ", error);
     throw error;
   }
 };

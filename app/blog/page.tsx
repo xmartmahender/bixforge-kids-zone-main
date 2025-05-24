@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Header } from '../components/header';
+import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from 'next/link';
 import UserTracker from '../components/UserTracker';
@@ -89,8 +89,8 @@ export default function BlogPage() {
     { id: 'digital-wellness', name: 'Digital Wellness', count: blogPosts.filter(post => post.category === 'digital-wellness').length }
   ];
 
-  const filteredPosts = selectedCategory === 'all' 
-    ? blogPosts 
+  const filteredPosts = selectedCategory === 'all'
+    ? blogPosts
     : blogPosts.filter(post => post.category === selectedCategory);
 
   const featuredPosts = blogPosts.filter(post => post.featured);
@@ -119,8 +119,8 @@ export default function BlogPage() {
                   <Link href={`/blog/${post.id}`} key={post.id}>
                     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full">
                       <div className="relative">
-                        <img 
-                          src={post.image} 
+                        <img
+                          src={post.image}
                           alt={post.title}
                           className="w-full h-48 object-cover"
                         />
@@ -204,8 +204,8 @@ export default function BlogPage() {
                     <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                       <div className="md:flex">
                         <div className="md:w-1/3">
-                          <img 
-                            src={post.image} 
+                          <img
+                            src={post.image}
                             alt={post.title}
                             className="w-full h-48 md:h-full object-cover"
                           />
