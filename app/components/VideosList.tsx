@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
 import { Video, getVideos } from '../../lib/videoService';
 
 interface VideosListProps {
@@ -21,49 +19,11 @@ export default function VideosList({ selectedAgeGroup = '', showAdminContent = f
       try {
         setLoading(true);
 
-        if (showAdminContent) {
-          // Fetch admin-created videos from Firebase
-          const videosQuery = query(
-            collection(db, 'videos'),
-            orderBy('createdAt', 'desc')
-          );
+        // Use the updated videoService that includes admin content
+        const videosData = await getVideos(selectedAgeGroup, 50, 'english'); // Get all videos including admin content
+        setVideos(videosData);
 
-          const querySnapshot = await getDocs(videosQuery);
-          const adminVideos: Video[] = [];
-
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            // Only include non-disabled videos
-            if (!data.disabled) {
-              adminVideos.push({
-                id: doc.id,
-                title: data.title || 'Untitled Video',
-                description: data.description || 'No description available',
-                ageGroup: data.ageGroup || '3-6',
-                videoUrl: data.videoUrl || '',
-                thumbnailUrl: data.thumbnailUrl,
-                isCodeVideo: data.isCodeVideo || false,
-                programmingLanguage: data.programmingLanguage,
-                disabled: data.disabled || false,
-                featured: data.featured || false,
-                createdAt: data.createdAt,
-                updatedAt: data.updatedAt
-              });
-            }
-          });
-
-          // Filter by age group if specified
-          const filteredVideos = selectedAgeGroup
-            ? adminVideos.filter(video => video.ageGroup === selectedAgeGroup)
-            : adminVideos;
-
-          setVideos(filteredVideos);
-        } else {
-          // Use existing video service for mock data
-          const videosData = await getVideos(selectedAgeGroup, 10);
-          setVideos(videosData);
-        }
-
+        console.log(`🎥 Loaded ${videosData.length} videos (including admin content)`);
         setError('');
       } catch (err) {
         console.error('Error fetching videos:', err);
@@ -124,7 +84,13 @@ export default function VideosList({ selectedAgeGroup = '', showAdminContent = f
 
       {sortedAgeGroups.map(ageGroup => (
         <div key={ageGroup} className="mb-10">
-          <h3 className="text-xl font-bold mb-4 text-pink-700">{ageGroup}</h3>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+              Ages {ageGroup}
+            </div>
+            <div className="h-px bg-gray-200 flex-1"></div>
+            <span className="text-sm text-gray-500">{videosByAgeGroup[ageGroup].length} videos</span>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {videosByAgeGroup[ageGroup].map(video => {
               const videoId = getYouTubeVideoId(video.videoUrl);

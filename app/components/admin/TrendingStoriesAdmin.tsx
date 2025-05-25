@@ -99,7 +99,13 @@ export default function TrendingStoriesAdmin() {
     setSubmitting(true);
 
     try {
-      const categoryArray = formData.category.split(',').map(cat => cat.trim()).filter(cat => cat);
+      // Handle category - convert string to array if needed
+      let categoryArray: string[] = [];
+      if (typeof formData.category === 'string') {
+        categoryArray = formData.category.split(',').map(cat => cat.trim()).filter(cat => cat);
+      } else if (Array.isArray(formData.category)) {
+        categoryArray = formData.category;
+      }
 
       const storyData = {
         ...formData,
@@ -123,12 +129,20 @@ export default function TrendingStoriesAdmin() {
   };
 
   const handleEdit = (story: TrendingStory) => {
+    // Handle category - convert to string for form
+    let categoryString = '';
+    if (Array.isArray(story.category)) {
+      categoryString = story.category.join(', ');
+    } else if (typeof story.category === 'string') {
+      categoryString = story.category;
+    }
+
     setFormData({
       title: story.title,
       description: story.description,
       imageUrl: story.imageUrl,
       ageGroup: story.ageGroup,
-      category: story.category?.join(', ') || '',
+      category: categoryString,
       views: story.views,
       likes: story.likes,
       priority: story.priority,

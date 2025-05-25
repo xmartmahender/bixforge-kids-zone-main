@@ -34,3 +34,37 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Admin dashboard (separate repository)
+kidz-zone-admin/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test and documentation files
+test-*.html
+*-test.html
+test-upload-guide.html
+AGE_*.md
+SAMPLE_*.md
+*_SOLUTION.md
+*_COMPLETE.md
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Environment files
+.env
+.env.development
+.env.production

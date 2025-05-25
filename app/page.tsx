@@ -7,6 +7,7 @@ import Footer from './components/footer';
 import StoriesList from './components/StoriesList';
 import VideosList from './components/VideosList';
 import TrendingStories from './components/TrendingStories';
+import FeaturedCodeStories from './components/FeaturedCodeStories';
 import AgeGroupFilter from './components/AgeGroupFilter';
 import UserTracker from './components/UserTracker';
 import Link from 'next/link';
@@ -37,6 +38,9 @@ export default function Home() {
         <div className="space-y-12">
           <StoriesList selectedAgeGroup={selectedAgeGroup} showAdminContent={true} />
           <VideosList selectedAgeGroup={selectedAgeGroup} showAdminContent={true} />
+
+          {/* Featured Code Stories and Videos */}
+          <FeaturedCodeStories selectedAgeGroup={selectedAgeGroup} />
         </div>
 
         {/* Featured Sections */}
@@ -103,6 +107,32 @@ export default function Home() {
               className="inline-block bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors"
             >
               Watch Code Videos
+            </Link>
+          </div>
+
+          <div className="bg-indigo-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-bold text-indigo-700 mb-3">Code Playground</h3>
+            <p className="text-gray-600 mb-4">
+              Practice coding with our free online IDE! Write, run, and experiment with code after learning.
+            </p>
+            <Link
+              href="/code-playground"
+              className="inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              Start Coding
+            </Link>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-purple-200">
+            <h3 className="text-xl font-bold text-purple-700 mb-3">📖 Sample Code Story</h3>
+            <p className="text-gray-600 mb-4">
+              See how code stories work! Read "My First HTML Adventure" with interactive syntax examples.
+            </p>
+            <Link
+              href="/sample-code-story"
+              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-md hover:from-purple-700 hover:to-pink-700 transition-colors"
+            >
+              Read Sample Story
             </Link>
           </div>
 

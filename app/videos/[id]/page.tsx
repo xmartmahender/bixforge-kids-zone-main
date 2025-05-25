@@ -11,7 +11,7 @@ export default function VideoPage({ params }: { params: { id: string } }) {
     <div>
       <UserTracker contentType="video" contentId={params.id} />
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="pt-20"> {/* Add padding for fixed header */}
         <VideoDetail videoId={params.id} />
       </div>
       <Footer />

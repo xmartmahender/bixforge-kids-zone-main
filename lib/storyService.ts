@@ -6,6 +6,7 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "./firebase";
+import { getAdminStories, getAdminTrendingStories, convertAdminStoryToRegular, convertAdminTrendingToRegular } from "./simpleAdminConnection";
 
 export type Story = {
   id?: string;
@@ -41,7 +42,7 @@ export type TrendingStory = {
   description: string;
   imageUrl: string;
   ageGroup: string;
-  category?: string[];
+  category?: string[] | string; // Can be array or string
   views: number;
   likes: number;
   priority: number; // Higher number = higher priority in trending
@@ -51,27 +52,37 @@ export type TrendingStory = {
   updatedAt: Timestamp;
 }
 
-export const getStories = async (ageGroup?: string, limitCount = 10) => {
+export const getStories = async (ageGroup?: string, limitCount = 10, language: string = 'english') => {
   try {
-    // Get all stories first, then filter in memory to avoid complex Firebase queries
-    const q = query(
-      collection(db, "stories"),
-      orderBy("createdAt", "desc")
-    );
+    // Get regular stories and admin stories
+    const [regularStoriesSnapshot, adminStories] = await Promise.all([
+      getDocs(query(collection(db, "stories"), orderBy("createdAt", "desc"))),
+      getAdminStories(language)
+    ]);
 
-    const querySnapshot = await getDocs(q);
     const stories: Story[] = [];
 
-    querySnapshot.forEach((doc) => {
+    // Process regular stories (including admin posts)
+    regularStoriesSnapshot.forEach((doc) => {
       const storyData = { id: doc.id, ...doc.data() } as Story;
 
-      // Filter out code stories and disabled stories
+      // Filter out code stories and disabled stories, but INCLUDE admin posts
       const isCodeStory = storyData.isCodeStory === true;
       const isDisabled = storyData.disabled === true;
       const matchesAgeGroup = !ageGroup || ageGroup === '' || storyData.ageGroup === ageGroup;
 
       if (!isCodeStory && !isDisabled && matchesAgeGroup) {
         stories.push(storyData);
+      }
+    });
+
+    // Add admin stories
+    adminStories.forEach((adminStory) => {
+      const matchesAgeGroup = !ageGroup || ageGroup === '' || adminStory.ageGroup === ageGroup;
+
+      if (matchesAgeGroup) {
+        const convertedStory = convertAdminStoryToRegular(adminStory);
+        stories.push(convertedStory);
       }
     });
 
@@ -88,6 +99,7 @@ export const getStories = async (ageGroup?: string, limitCount = 10) => {
       return 0;
     });
 
+    console.log(`📚 Combined ${stories.length} stories (including kidz-zone-admin content)`);
     return stories.slice(0, limitCount);
   } catch (error) {
     console.error("Error getting stories: ", error);
@@ -240,31 +252,37 @@ export const deleteStory = async (id: string, imageUrl?: string) => {
 };
 
 // Trending Stories Functions
-export const getTrendingStories = async (limitCount = 6) => {
+export const getTrendingStories = async (limitCount = 6, language: string = 'english') => {
   try {
     console.log('getTrendingStories: Starting to fetch trending stories...');
 
-    const q = query(
-      collection(db, "trending_stories"),
-      orderBy("priority", "desc")
-    );
-
-    const querySnapshot = await getDocs(q);
-    console.log('getTrendingStories: Query completed, total documents:', querySnapshot.size);
+    // Get regular trending stories and admin trending stories
+    const [regularTrendingSnapshot, adminTrendingStories] = await Promise.all([
+      getDocs(query(collection(db, "trending_stories"), orderBy("priority", "desc"))),
+      getAdminTrendingStories(language)
+    ]);
 
     const trendingStories: TrendingStory[] = [];
 
-    querySnapshot.forEach((doc) => {
+    // Process regular trending stories (including admin posts)
+    regularTrendingSnapshot.forEach((doc) => {
       const storyData = { id: doc.id, ...doc.data() } as TrendingStory;
 
-      // Only include active trending stories
+      // Only include active trending stories (including admin posts)
       if (storyData.isActive === true) {
         trendingStories.push(storyData);
         console.log(`getTrendingStories: Added trending story: ${storyData.title}`);
       }
     });
 
-    console.log(`getTrendingStories: Found ${trendingStories.length} active trending stories`);
+    // Add admin trending stories
+    adminTrendingStories.forEach((adminTrending) => {
+      const convertedTrending = convertAdminTrendingToRegular(adminTrending);
+      trendingStories.push(convertedTrending);
+      console.log(`getTrendingStories: Added admin trending story: ${adminTrending.title}`);
+    });
+
+    console.log(`getTrendingStories: Found ${trendingStories.length} active trending stories (including kidz-zone-admin)`);
 
     // Sort by priority (highest first), then by views, then by creation date
     trendingStories.sort((a, b) => {

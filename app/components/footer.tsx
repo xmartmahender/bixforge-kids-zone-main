@@ -63,7 +63,7 @@ const Footer = () => {
               </div>
               <div>
                 <span className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-pink-400 bg-clip-text text-transparent">
-                  Kidz Zone
+                  BixForge Solutions
                 </span>
                 <p className="text-sm text-purple-200 mt-1">Learning Made Fun!</p>
               </div>
@@ -132,7 +132,7 @@ const Footer = () => {
             <div className="space-y-3 mb-6">
               <div className="flex items-center text-purple-200 text-sm">
                 <FaEnvelope className="mr-3 text-yellow-400" />
-                <span>hello@kidzzone.com</span>
+                <span>hello@bixforge.com</span>
               </div>
               <div className="flex items-center text-purple-200 text-sm">
                 <FaPhone className="mr-3 text-yellow-400" />
@@ -140,7 +140,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center text-purple-200 text-sm">
                 <FaMapMarkerAlt className="mr-3 text-yellow-400" />
-                <span>Learning City, Education State</span>
+                <span>BixForge Solutions HQ</span>
               </div>
             </div>
 
@@ -178,7 +178,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
               <p className="text-purple-200 text-sm">
-                © 2025 Kidz Zone. All rights reserved.
+                © 2025 BixForge Solutions — Kidz Zone. All rights reserved.
               </p>
               <p className="text-purple-300 text-xs mt-1">
                 Empowering young minds through technology and creativity
@@ -189,14 +189,9 @@ const Footer = () => {
               <span>Crafted with</span>
               <FaHeart className="text-pink-400 animate-pulse" />
               <span>by</span>
-              <a
-                href="https://twitter.com/knyttneve"
-                className="text-yellow-400 hover:text-yellow-300 font-bold transition-colors duration-300"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                @ByteForge
-              </a>
+              <span className="text-yellow-400 font-bold">
+                BixForge Solutions
+              </span>
             </div>
           </div>
         </div>

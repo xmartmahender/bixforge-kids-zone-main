@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { getStories } from '../../lib/storyService';
 
 interface Story {
   id?: string;
@@ -42,39 +41,29 @@ export default function StoriesList({ selectedAgeGroup, showAdminContent = false
   const fetchAdminStories = async () => {
     setLoading(true);
     try {
-      const storiesQuery = query(
-        collection(db, 'stories'),
-        orderBy('createdAt', 'desc')
-      );
+      // Use the updated storyService that includes admin content
+      const stories = await getStories('', 50, 'english'); // Get all stories including admin content
 
-      const querySnapshot = await getDocs(storiesQuery);
-      const stories: Story[] = [];
+      const formattedStories: Story[] = stories.map(story => ({
+        id: story.id,
+        title: story.title || 'Untitled Story',
+        description: story.description || 'No description available',
+        ageGroup: story.ageGroup || '3-6',
+        imageUrl: story.imageUrl || 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
+        rating: 4.5, // Default rating
+        readCount: story.views || Math.floor(Math.random() * 1000) + 100,
+        category: story.isCodeStory ? 'Code Story' : (story.category || 'Story'),
+        isCodeStory: story.isCodeStory || false,
+        programmingLanguage: story.programmingLanguage,
+        content: story.content,
+        disabled: story.disabled || false,
+        featured: story.featured || false,
+        createdAt: story.createdAt,
+        updatedAt: story.updatedAt
+      }));
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        // Only include non-disabled stories
-        if (!data.disabled) {
-          stories.push({
-            id: doc.id,
-            title: data.title || 'Untitled Story',
-            description: data.description || 'No description available',
-            ageGroup: data.ageGroup || '3-6',
-            imageUrl: data.imageUrl || 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
-            rating: 4.5, // Default rating
-            readCount: Math.floor(Math.random() * 1000) + 100, // Random read count
-            category: data.isCodeStory ? 'Code Story' : 'Story',
-            isCodeStory: data.isCodeStory || false,
-            programmingLanguage: data.programmingLanguage,
-            content: data.content,
-            disabled: data.disabled || false,
-            featured: data.featured || false,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt
-          });
-        }
-      });
-
-      setAdminStories(stories);
+      setAdminStories(formattedStories);
+      console.log(`📚 Loaded ${formattedStories.length} stories (including admin content)`);
     } catch (error) {
       console.error('Error fetching admin stories:', error);
     } finally {
@@ -82,99 +71,18 @@ export default function StoriesList({ selectedAgeGroup, showAdminContent = false
     }
   };
 
-  // Mock stories data (fallback when not showing admin content)
-  const mockStories: Story[] = useMemo(() => [
-    {
-      id: '1',
-      title: 'The Brave Little Lion',
-      description: 'A young lion learns about courage and friendship in the African savanna.',
-      ageGroup: '3-6',
-      imageUrl: 'https://images.unsplash.com/photo-1614027164847-1b28cfe1df60?w=400&h=300&fit=crop',
-      rating: 4.8,
-      readCount: 1250,
-      category: 'Adventure'
-    },
-    {
-      id: '2',
-      title: 'Space Adventure Quest',
-      description: 'Join Captain Stella on an exciting journey through the galaxy.',
-      ageGroup: '6-9',
-      imageUrl: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop',
-      rating: 4.9,
-      readCount: 980,
-      category: 'Science Fiction'
-    },
-    {
-      id: '3',
-      title: 'The Magic Forest',
-      description: 'Discover the secrets of an enchanted forest filled with magical creatures.',
-      ageGroup: '3-6',
-      imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop',
-      rating: 4.7,
-      readCount: 1100,
-      category: 'Fantasy'
-    },
-    {
-      id: '4',
-      title: 'Coding with Ruby Robot',
-      description: 'Learn basic programming concepts with Ruby the friendly robot.',
-      ageGroup: '6-9',
-      imageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=300&fit=crop',
-      rating: 4.6,
-      readCount: 750,
-      category: 'Educational'
-    },
-    {
-      id: '5',
-      title: 'The Little Seed\'s Journey',
-      description: 'Follow a tiny seed as it grows into a magnificent tree.',
-      ageGroup: '0-3',
-      imageUrl: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
-      rating: 4.5,
-      readCount: 890,
-      category: 'Nature'
-    },
-    {
-      id: '6',
-      title: 'Detective Max Mystery',
-      description: 'Help Detective Max solve the case of the missing cookies.',
-      ageGroup: '9-12',
-      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-      rating: 4.8,
-      readCount: 650,
-      category: 'Mystery'
-    },
-    {
-      id: '7',
-      title: 'Princess Luna\'s Dream',
-      description: 'A princess discovers the power of dreams and imagination.',
-      ageGroup: '3-6',
-      imageUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop',
-      rating: 4.7,
-      readCount: 1200,
-      category: 'Fantasy'
-    },
-    {
-      id: '8',
-      title: 'Ocean Explorer',
-      description: 'Dive deep into the ocean and meet amazing sea creatures.',
-      ageGroup: '6-9',
-      imageUrl: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
-      rating: 4.6,
-      readCount: 820,
-      category: 'Adventure'
-    }
-  ], []);
+  // No mock stories - only show admin content
 
-  // Filter stories based on selected age group
+  // Filter stories based on selected age group - only show admin content
   const filteredStories = useMemo(() => {
-    const allStories = showAdminContent ? adminStories : mockStories;
+    // Always use admin stories only
+    const allStories = adminStories;
 
     if (!selectedAgeGroup || selectedAgeGroup === 'all') {
       return allStories;
     }
     return allStories.filter(story => story.ageGroup === selectedAgeGroup);
-  }, [selectedAgeGroup, showAdminContent, adminStories, mockStories]);
+  }, [selectedAgeGroup, adminStories]);
 
   // Group stories by age group
   const storiesByAgeGroup = useMemo(() => {
@@ -210,11 +118,9 @@ export default function StoriesList({ selectedAgeGroup, showAdminContent = false
         <div className="text-6xl mb-4">📚</div>
         <h3 className="text-xl font-semibold text-gray-700 mb-2">No stories found</h3>
         <p className="text-gray-500">
-          {showAdminContent
-            ? 'No stories have been added by the admin yet. Check back later!'
-            : selectedAgeGroup
-              ? `No stories available for age group ${selectedAgeGroup}.`
-              : 'No stories available.'
+          {selectedAgeGroup
+            ? `No stories available for age group ${selectedAgeGroup}. Add stories through the admin dashboard!`
+            : 'No stories have been added yet. Add stories through the admin dashboard!'
           }
         </p>
       </div>

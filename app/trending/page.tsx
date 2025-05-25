@@ -226,7 +226,7 @@ export default function TrendingPage() {
           {filteredStories.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredStories.map((story, index) => (
-                <Link href={story.storyId ? `/stories/${story.storyId}` : '#'} key={story.id}>
+                <Link href={`/trending/${story.id}`} key={story.id}>
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 relative group">
                     {/* Trending Rank Badge */}
                     <div className="absolute top-3 left-3 z-10">
@@ -283,16 +283,24 @@ export default function TrendingPage() {
                       </p>
 
                       {/* Categories */}
-                      {story.category && story.category.length > 0 && (
+                      {story.category && (
                         <div className="flex flex-wrap gap-1 mb-3">
-                          {story.category.slice(0, 2).map((cat, catIndex) => (
-                            <span key={catIndex} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                              {cat}
-                            </span>
-                          ))}
-                          {story.category.length > 2 && (
+                          {Array.isArray(story.category) ? (
+                            <>
+                              {story.category.slice(0, 2).map((cat, catIndex) => (
+                                <span key={catIndex} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                                  {cat}
+                                </span>
+                              ))}
+                              {story.category.length > 2 && (
+                                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                                  +{story.category.length - 2}
+                                </span>
+                              )}
+                            </>
+                          ) : (
                             <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                              +{story.category.length - 2}
+                              {story.category}
                             </span>
                           )}
                         </div>

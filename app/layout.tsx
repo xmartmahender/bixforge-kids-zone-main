@@ -22,9 +22,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: {
     template: "%s | Kids Zone.",
-    default: "Stormiz Kids Zone: Childrens Stories Site",
+    default: "BixForge Kids Zone: Childrens Stories Site",
   },
-  description: "Official site for the Stories by ByteForges.",
+  description: "Official site for the Stories by BixForge Solutions.",
   icons: {
     icon: [
       // `/assets/logo/logo.png?v=${faviconVersion}`,

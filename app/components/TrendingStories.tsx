@@ -18,14 +18,15 @@ export default function TrendingStories({ selectedAgeGroup }: TrendingStoriesPro
     const fetchTrendingStories = async () => {
       try {
         setLoading(true);
-        const stories = await getTrendingStories(6);
-        
+        const stories = await getTrendingStories(6, 'english'); // Include language parameter
+
         // Filter by age group if specified
-        const filteredStories = selectedAgeGroup && selectedAgeGroup !== '' 
+        const filteredStories = selectedAgeGroup && selectedAgeGroup !== ''
           ? stories.filter(story => story.ageGroup === selectedAgeGroup)
           : stories;
-        
+
         setTrendingStories(filteredStories);
+        console.log(`🔥 Loaded ${filteredStories.length} trending stories (including admin content)`);
         setError('');
       } catch (err) {
         console.error('Error fetching trending stories:', err);
@@ -76,8 +77,8 @@ export default function TrendingStories({ selectedAgeGroup }: TrendingStoriesPro
           </div>
           <div className="text-center py-8">
             <p className="text-red-500 mb-4">{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
             >
               Try Again
@@ -115,7 +116,7 @@ export default function TrendingStories({ selectedAgeGroup }: TrendingStoriesPro
           <h2 className="text-3xl font-bold text-gray-800">Trending Stories</h2>
           <FaFire className="text-3xl text-orange-500 ml-3 animate-bounce" />
         </div>
-        
+
         <p className="text-center text-gray-600 mb-8 text-lg">
           🔥 The hottest stories everyone is reading right now!
         </p>
@@ -123,7 +124,7 @@ export default function TrendingStories({ selectedAgeGroup }: TrendingStoriesPro
         {/* Trending Stories Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {trendingStories.map((story, index) => (
-            <Link href={story.storyId ? `/stories/${story.storyId}` : '#'} key={story.id}>
+            <Link href={`/trending/${story.id}`} key={story.id}>
               <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative group">
                 {/* Trending Badge */}
                 <div className="absolute top-3 left-3 z-10">
@@ -174,13 +175,13 @@ export default function TrendingStories({ selectedAgeGroup }: TrendingStoriesPro
                   <h3 className="font-bold text-lg mb-2 text-gray-800 line-clamp-2 group-hover:text-orange-600 transition-colors">
                     {story.title}
                   </h3>
-                  
+
                   <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                     {story.description}
                   </p>
 
                   {/* Categories */}
-                  {story.category && story.category.length > 0 && (
+                  {story.category && Array.isArray(story.category) && story.category.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-3">
                       {story.category.slice(0, 2).map((cat, catIndex) => (
                         <span key={catIndex} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
@@ -192,6 +193,14 @@ export default function TrendingStories({ selectedAgeGroup }: TrendingStoriesPro
                           +{story.category.length - 2}
                         </span>
                       )}
+                    </div>
+                  )}
+                  {/* Fallback for string category */}
+                  {story.category && typeof story.category === 'string' && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                        {story.category}
+                      </span>
                     </div>
                   )}
 

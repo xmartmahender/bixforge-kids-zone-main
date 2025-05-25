@@ -6,6 +6,7 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "./firebase";
+import { getAdminVideos, convertAdminVideoToRegular } from "./simpleAdminConnection";
 
 export type Video = {
   id?: string;
@@ -23,27 +24,37 @@ export type Video = {
   updatedAt: Timestamp;
 }
 
-export const getVideos = async (ageGroup?: string, limitCount = 10) => {
+export const getVideos = async (ageGroup?: string, limitCount = 10, language: string = 'english') => {
   try {
-    // Get all videos first, then filter in memory to avoid complex Firebase queries
-    const q = query(
-      collection(db, "videos"),
-      orderBy("createdAt", "desc")
-    );
+    // Get regular videos and admin videos
+    const [regularVideosSnapshot, adminVideos] = await Promise.all([
+      getDocs(query(collection(db, "videos"), orderBy("createdAt", "desc"))),
+      getAdminVideos(language)
+    ]);
 
-    const querySnapshot = await getDocs(q);
     const videos: Video[] = [];
 
-    querySnapshot.forEach((doc) => {
+    // Process regular videos (including admin posts)
+    regularVideosSnapshot.forEach((doc) => {
       const videoData = { id: doc.id, ...doc.data() } as Video;
 
-      // Filter out code videos and disabled videos
+      // Filter out code videos and disabled videos, but INCLUDE admin posts
       const isCodeVideo = videoData.isCodeVideo === true;
       const isDisabled = videoData.disabled === true;
       const matchesAgeGroup = !ageGroup || ageGroup === '' || videoData.ageGroup === ageGroup;
 
       if (!isCodeVideo && !isDisabled && matchesAgeGroup) {
         videos.push(videoData);
+      }
+    });
+
+    // Add admin videos
+    adminVideos.forEach((adminVideo) => {
+      const matchesAgeGroup = !ageGroup || ageGroup === '' || adminVideo.ageGroup === ageGroup;
+
+      if (matchesAgeGroup) {
+        const convertedVideo = convertAdminVideoToRegular(adminVideo);
+        videos.push(convertedVideo);
       }
     });
 
@@ -60,6 +71,7 @@ export const getVideos = async (ageGroup?: string, limitCount = 10) => {
       return 0;
     });
 
+    console.log(`🎥 Combined ${videos.length} videos (including kidz-zone-admin content)`);
     return videos.slice(0, limitCount);
   } catch (error) {
     console.error("Error getting videos: ", error);

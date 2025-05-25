@@ -30,6 +30,7 @@ export default function MainNavigation({ isScrolled }: MainNavigationProps) {
     { href: '/age-groups/0-3', label: t('nav.ageGroups'), icon: '👶' },
     { href: '/code-stories', label: t('nav.codeStories'), icon: '📚' },
     { href: '/code-videos', label: t('nav.codeVideos'), icon: '🎥' },
+    { href: '/code-playground', label: 'Code IDE', icon: '💻' },
     { href: '/poems', label: t('nav.poems'), icon: '🎭' },
     { href: '/blog', label: t('nav.blog'), icon: '✍️' },
     { href: '/parents', label: t('nav.parents'), icon: '👪' },
@@ -54,7 +55,7 @@ export default function MainNavigation({ isScrolled }: MainNavigationProps) {
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
           </div>
           <span className="bg-gradient-to-r from-yellow-400 to-pink-400 bg-clip-text text-transparent font-extrabold">
-            Kidz Zone
+            BixForge Solutions
           </span>
         </Link>
 

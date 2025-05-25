@@ -78,8 +78,8 @@ export default function AgeGroupPage({ params }: { params: { ageGroup: string } 
         </div>
 
         <div className="space-y-12">
-          <StoriesList selectedAgeGroup={ageGroup} />
-          <VideosList selectedAgeGroup={ageGroup} />
+          <StoriesList selectedAgeGroup={ageGroup} showAdminContent={true} />
+          <VideosList selectedAgeGroup={ageGroup} showAdminContent={true} />
         </div>
       </div>
       <Footer />
