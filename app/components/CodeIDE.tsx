@@ -308,7 +308,7 @@ export default function CodeIDE({ initialLanguage = 'html', initialCode, ageGrou
 
       // Handle simple variable assignments
       if (line.includes('=') && !line.includes('==')) {
-        const [varName, value] = line.split('=').map(s => s.trim());
+        const [varName] = line.split('=').map(s => s.trim());
         if (!varName.includes(' ')) {
           output += `✅ Variable '${varName}' assigned\n`;
         }
@@ -334,8 +334,8 @@ export default function CodeIDE({ initialLanguage = 'html', initialCode, ageGrou
 
       // Handle imports
       if (line.startsWith('import ') || line.startsWith('from ')) {
-        const module = line.includes('import') ? line.split('import')[1].trim() : line.split('from')[1].split('import')[0].trim();
-        output += `📦 Module '${module}' imported\n`;
+        const moduleName = line.includes('import') ? line.split('import')[1].trim() : line.split('from')[1].split('import')[0].trim();
+        output += `📦 Module '${moduleName}' imported\n`;
       }
     }
 
@@ -351,8 +351,6 @@ export default function CodeIDE({ initialLanguage = 'html', initialCode, ageGrou
   const runCode = () => {
     setIsRunning(true);
     setOutput('');
-
-    const langData = PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES];
 
     if (selectedLanguage === 'html') {
       // Run HTML code in iframe safely
@@ -419,7 +417,6 @@ export default function CodeIDE({ initialLanguage = 'html', initialCode, ageGrou
   };
 
   const downloadCode = () => {
-    const langData = PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES];
     const extension = selectedLanguage === 'javascript' ? 'js' : selectedLanguage;
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -555,7 +552,7 @@ export default function CodeIDE({ initialLanguage = 'html', initialCode, ageGrou
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-t">
         <div className="flex flex-wrap items-center justify-between text-sm text-gray-600">
           <div className="flex items-center space-x-4">
-            <span>💡 <strong>Tip:</strong> Try modifying the code and click "Run" to see changes!</span>
+            <span>💡 <strong>Tip:</strong> Try modifying the code and click &quot;Run&quot; to see changes!</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className={`w-3 h-3 rounded-full ${langData?.color}`}></span>

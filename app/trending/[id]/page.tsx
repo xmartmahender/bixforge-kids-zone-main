@@ -22,8 +22,8 @@ type TrendingStory = {
   likes: number;
   priority: number;
   isActive: boolean;
-  createdAt: any;
-  updatedAt: any;
+  createdAt: { seconds: number; nanoseconds: number } | null;
+  updatedAt: { seconds: number; nanoseconds: number } | null;
 };
 
 export default function TrendingStoryPage() {
@@ -148,7 +148,7 @@ export default function TrendingStoryPage() {
 
   return (
     <div>
-      <UserTracker contentType="trending_story" contentId={story.id} />
+      <UserTracker contentType="story" contentId={story.id} />
       <Header />
       <div className="pt-20 min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50">
         <div className="max-w-4xl mx-auto p-4 md:p-8">

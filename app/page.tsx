@@ -126,7 +126,7 @@ export default function Home() {
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-purple-200">
             <h3 className="text-xl font-bold text-purple-700 mb-3">📖 Sample Code Story</h3>
             <p className="text-gray-600 mb-4">
-              See how code stories work! Read "My First HTML Adventure" with interactive syntax examples.
+              See how code stories work! Read &quot;My First HTML Adventure&quot; with interactive syntax examples.
             </p>
             <Link
               href="/sample-code-story"

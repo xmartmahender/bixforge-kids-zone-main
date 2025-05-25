@@ -28,7 +28,7 @@ export default function AdminPage() {
         <div className="text-6xl mb-4">⏳</div>
         <h1 className="text-2xl font-bold text-white mb-4">Redirecting to Admin Login...</h1>
         <p className="text-purple-200">
-          If you're not redirected automatically,
+          If you&apos;re not redirected automatically,
           <a href="/admin-login.html" className="text-yellow-400 hover:underline ml-1">
             click here
           </a>

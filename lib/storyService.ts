@@ -15,7 +15,7 @@ export type Story = {
   imageUrl: string;
   ageGroup: string;
   content?: string;
-  category?: string[];
+  category?: string[] | string;
   illustrations?: string[];
   audioUrl?: string;
   language?: string;

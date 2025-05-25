@@ -12,7 +12,7 @@ interface Story {
   imageUrl?: string;
   rating?: number;
   readCount?: number;
-  category?: string;
+  category?: string | string[];
   isCodeStory?: boolean;
   programmingLanguage?: string;
   content?: string;
@@ -51,8 +51,8 @@ export default function StoriesList({ selectedAgeGroup, showAdminContent = false
         ageGroup: story.ageGroup || '3-6',
         imageUrl: story.imageUrl || 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
         rating: 4.5, // Default rating
-        readCount: story.views || Math.floor(Math.random() * 1000) + 100,
-        category: story.isCodeStory ? 'Code Story' : (story.category || 'Story'),
+        readCount: Math.floor(Math.random() * 1000) + 100,
+        category: story.isCodeStory ? 'Code Story' : (Array.isArray(story.category) ? story.category[0] : story.category) || 'Story',
         isCodeStory: story.isCodeStory || false,
         programmingLanguage: story.programmingLanguage,
         content: story.content,

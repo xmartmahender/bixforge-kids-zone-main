@@ -16,7 +16,7 @@ type CodeStory = {
   featured: boolean;
   disabled: boolean;
   views: number;
-  createdAt: any;
+  createdAt: { seconds: number; nanoseconds: number } | null;
 };
 
 type CodeVideo = {
@@ -31,7 +31,7 @@ type CodeVideo = {
   featured: boolean;
   disabled: boolean;
   views: number;
-  createdAt: any;
+  createdAt: { seconds: number; nanoseconds: number } | null;
 };
 
 interface FeaturedCodeStoriesProps {

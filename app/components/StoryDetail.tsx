@@ -280,7 +280,7 @@ export default function StoryDetail({ storyId }: StoryDetailProps) {
               <div className="text-6xl mb-4">💻</div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Ready to Practice Coding?</h3>
               <p className="text-lg text-gray-600 mb-6">
-                Now that you've learned about {story.programmingLanguage.toUpperCase()},
+                Now that you&apos;ve learned about {story.programmingLanguage.toUpperCase()},
                 try writing your own code in our free online IDE!
               </p>
               <div className="flex flex-wrap justify-center gap-4">

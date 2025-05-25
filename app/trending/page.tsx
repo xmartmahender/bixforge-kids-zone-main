@@ -49,8 +49,10 @@ export default function TrendingPage() {
       filtered = filtered.filter(story =>
         story.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         story.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (story.category && story.category.some(cat =>
-          cat.toLowerCase().includes(searchTerm.toLowerCase())
+        (story.category && (
+          Array.isArray(story.category)
+            ? story.category.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
+            : story.category.toLowerCase().includes(searchTerm.toLowerCase())
         ))
       );
     }

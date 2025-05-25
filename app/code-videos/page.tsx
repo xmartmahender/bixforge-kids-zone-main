@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from 'next/link';
 import UserTracker from '../components/UserTracker';
-import { Video, getCodeVideos, getYouTubeVideoId } from '../../lib/videoService';
+import { Video, getYouTubeVideoId } from '../../lib/videoService';
 import { db } from '../../lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
@@ -152,16 +152,14 @@ export default function CodeVideosPage() {
   const [step, setStep] = useState(1); // 1: Select Language, 2: Select Age, 3: View Videos
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('');
-  const [currentCurriculum, setCurrentCurriculum] = useState<any>(null);
+  const [currentCurriculum, setCurrentCurriculum] = useState<{
+    title: string;
+    description: string;
+    difficulty: string;
+    concepts: string[];
+  } | null>(null);
 
-  // Fetch code videos when language and age are selected
-  useEffect(() => {
-    if (step === 3 && selectedLanguage && selectedAgeGroup) {
-      fetchCodeVideos();
-    }
-  }, [step, selectedLanguage, selectedAgeGroup]);
-
-  const fetchCodeVideos = async () => {
+  const fetchCodeVideos = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -199,7 +197,14 @@ export default function CodeVideosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedLanguage, selectedAgeGroup]);
+
+  // Fetch code videos when language and age are selected
+  useEffect(() => {
+    if (step === 3 && selectedLanguage && selectedAgeGroup) {
+      fetchCodeVideos();
+    }
+  }, [step, selectedLanguage, selectedAgeGroup, fetchCodeVideos]);
 
   // Handle language selection
   const handleLanguageSelect = (language: string) => {
@@ -228,7 +233,7 @@ export default function CodeVideosPage() {
 
   return (
     <div>
-      <UserTracker contentType="code-videos" contentId={`${selectedLanguage}-${selectedAgeGroup}`} />
+      <UserTracker contentType="video" contentId={`${selectedLanguage}-${selectedAgeGroup}`} />
       <Header />
       <div className="container mx-auto px-4 py-8">
         <Link href="/" className="text-blue-600 hover:underline mb-6 inline-block">
@@ -400,7 +405,7 @@ export default function CodeVideosPage() {
 
               <div className="bg-gradient-to-r from-red-100 to-purple-100 rounded-xl p-6 mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  🎥 Perfect! Here's Your Video Learning Path
+                  🎥 Perfect! Here&apos;s Your Video Learning Path
                 </h2>
                 <div className="flex justify-center items-center space-x-4 mb-4">
                   <span className={`${PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES]?.color} text-white px-4 py-2 rounded-full font-bold`}>
@@ -455,7 +460,7 @@ export default function CodeVideosPage() {
                 <div className="text-6xl mb-4">🎥</div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">No Videos Yet!</h3>
                 <p className="text-gray-600 mb-6">
-                  We're still creating {PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES]?.name} videos for ages {selectedAgeGroup}.
+                  We&apos;re still creating {PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES]?.name} videos for ages {selectedAgeGroup}.
                   <br />
                   Check back soon or try a different age group!
                 </p>

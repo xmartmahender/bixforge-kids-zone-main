@@ -139,40 +139,48 @@ export default function CodePlaygroundPage() {
 
   // Handle URL parameters for direct linking from stories/videos
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const language = urlParams.get('language');
-    const age = urlParams.get('age');
-    const prefilledCode = urlParams.get('code');
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const language = urlParams.get('language');
+      const age = urlParams.get('age');
+      const prefilledCode = urlParams.get('code');
 
-    if (language && ['html', 'css', 'javascript', 'python'].includes(language)) {
-      setSelectedLanguage(language);
-    }
+      if (language && ['html', 'css', 'javascript', 'python'].includes(language)) {
+        setSelectedLanguage(language);
+      }
 
-    if (age) {
-      setSelectedAgeGroup(age);
-    }
+      if (age) {
+        setSelectedAgeGroup(age);
+      }
 
-    // If there's prefilled code, we'll pass it to the IDE component
-    if (prefilledCode) {
-      // The CodeIDE component will handle this through initialCode prop
+      // If there's prefilled code, we'll pass it to the IDE component
+      if (prefilledCode) {
+        // The CodeIDE component will handle this through initialCode prop
+      }
     }
   }, []);
 
   const getCurrentExample = () => {
     // Check for prefilled code from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const prefilledCode = urlParams.get('code');
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const prefilledCode = urlParams.get('code');
 
-    if (prefilledCode) {
-      return decodeURIComponent(prefilledCode);
+      if (prefilledCode) {
+        return decodeURIComponent(prefilledCode);
+      }
     }
 
-    return CODE_EXAMPLES[selectedLevel as keyof typeof CODE_EXAMPLES]?.[selectedLanguage as keyof typeof CODE_EXAMPLES.beginner] || '';
+    const levelExamples = CODE_EXAMPLES[selectedLevel as keyof typeof CODE_EXAMPLES];
+    if (levelExamples && selectedLanguage in levelExamples) {
+      return levelExamples[selectedLanguage as keyof typeof levelExamples];
+    }
+    return '';
   };
 
   return (
     <div>
-      <UserTracker contentType="code-playground" />
+      <UserTracker contentType="code" />
       <Header />
       <div className="pt-20 min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
         <div className="container mx-auto px-4 py-8">
@@ -284,7 +292,7 @@ export default function CodePlaygroundPage() {
               <div className="bg-white p-4 rounded-lg">
                 <div className="text-2xl mb-2">🐛</div>
                 <h4 className="font-semibold mb-2">Debug Errors</h4>
-                <p className="text-sm text-gray-600">Don't worry about mistakes - they help you learn!</p>
+                <p className="text-sm text-gray-600">Don&apos;t worry about mistakes - they help you learn!</p>
               </div>
               <div className="bg-white p-4 rounded-lg">
                 <div className="text-2xl mb-2">🎉</div>

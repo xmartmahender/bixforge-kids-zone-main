@@ -126,7 +126,7 @@ export default function VideoDetail({ videoId }: VideoDetailProps) {
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {video.duration || 'Video duration'}
+                5-10 minutes
               </div>
               <div className="flex items-center">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@ export default function VideoDetail({ videoId }: VideoDetailProps) {
               <div className="text-6xl mb-4">🚀</div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Ready to Code Along?</h3>
               <p className="text-lg text-gray-600 mb-6">
-                Now that you've watched this {video.programmingLanguage.toUpperCase()} tutorial,
+                Now that you&apos;ve watched this {video.programmingLanguage.toUpperCase()} tutorial,
                 practice what you learned in our interactive code editor!
               </p>
               <div className="flex flex-wrap justify-center gap-4">

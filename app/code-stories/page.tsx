@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from 'next/link';
@@ -143,36 +143,7 @@ const PROGRAMMING_LANGUAGES = {
   }
 };
 
-// Helper function to check if content is age-appropriate
-const isAgeAppropriate = (contentAgeGroup: string, userAgeGroup: string): boolean => {
-  if (userAgeGroup === 'all') return true;
 
-  const ageRanges = {
-    '0-3': { min: 0, max: 3 },
-    '3-6': { min: 3, max: 6 },
-    '6-9': { min: 6, max: 9 },
-    '9-12': { min: 9, max: 12 }
-  };
-
-  const userRange = ageRanges[userAgeGroup as keyof typeof ageRanges];
-  const contentRange = ageRanges[contentAgeGroup as keyof typeof ageRanges];
-
-  if (!userRange || !contentRange) return true;
-
-  // Allow content that's at or below the user's level
-  return contentRange.max <= userRange.max;
-};
-
-// Helper function to get recommended languages for age group
-const getRecommendedLanguages = (ageGroup: string): string[] => {
-  const ageGroupLanguages = {
-    '0-3': ['scratch', 'html'],
-    '3-6': ['scratch', 'html', 'css'],
-    '6-9': ['html', 'css', 'python', 'javascript'],
-    '9-12': ['python', 'javascript', 'html', 'css']
-  };
-  return ageGroupLanguages[ageGroup as keyof typeof ageGroupLanguages] || [];
-};
 
 export default function CodeStoriesPage() {
   const [codeStories, setCodeStories] = useState<Story[]>([]);
@@ -183,16 +154,14 @@ export default function CodeStoriesPage() {
   const [step, setStep] = useState(1); // 1: Select Language, 2: Select Age, 3: View Stories
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('');
-  const [currentCurriculum, setCurrentCurriculum] = useState<any>(null);
+  const [currentCurriculum, setCurrentCurriculum] = useState<{
+    title: string;
+    description: string;
+    difficulty: string;
+    concepts: string[];
+  } | null>(null);
 
-  // Fetch code stories when language and age are selected
-  useEffect(() => {
-    if (step === 3 && selectedLanguage && selectedAgeGroup) {
-      fetchCodeStories();
-    }
-  }, [step, selectedLanguage, selectedAgeGroup]);
-
-  const fetchCodeStories = async () => {
+  const fetchCodeStories = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -230,7 +199,14 @@ export default function CodeStoriesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedLanguage, selectedAgeGroup]);
+
+  // Fetch code stories when language and age are selected
+  useEffect(() => {
+    if (step === 3 && selectedLanguage && selectedAgeGroup) {
+      fetchCodeStories();
+    }
+  }, [step, selectedLanguage, selectedAgeGroup, fetchCodeStories]);
 
   // Handle language selection
   const handleLanguageSelect = (language: string) => {
@@ -382,7 +358,7 @@ export default function CodeStoriesPage() {
                     </div>
 
                     <div className="mb-4">
-                      <h5 className="font-semibold text-gray-700 mb-2">You'll Learn:</h5>
+                      <h5 className="font-semibold text-gray-700 mb-2">You&apos;ll Learn:</h5>
                       <div className="flex flex-wrap gap-1">
                         {curriculum.concepts.map((concept: string, index: number) => (
                           <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
@@ -431,7 +407,7 @@ export default function CodeStoriesPage() {
 
               <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6 mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  🎉 Perfect! Here's Your Learning Path
+                  🎉 Perfect! Here&apos;s Your Learning Path
                 </h2>
                 <div className="flex justify-center items-center space-x-4 mb-4">
                   <span className={`${PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES]?.color} text-white px-4 py-2 rounded-full font-bold`}>
@@ -486,7 +462,7 @@ export default function CodeStoriesPage() {
                 <div className="text-6xl mb-4">📚</div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">No Stories Yet!</h3>
                 <p className="text-gray-600 mb-6">
-                  We're still creating {PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES]?.name} stories for ages {selectedAgeGroup}.
+                  We&apos;re still creating {PROGRAMMING_LANGUAGES[selectedLanguage as keyof typeof PROGRAMMING_LANGUAGES]?.name} stories for ages {selectedAgeGroup}.
                   <br />
                   Check back soon or try a different age group!
                 </p>
