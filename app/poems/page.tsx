@@ -5,6 +5,7 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from 'next/link';
 import UserTracker from '../components/UserTracker';
+import NewsletterSubscription from '../components/NewsletterSubscription';
 
 export default function PoemsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -123,12 +124,12 @@ Stories that will never get old.`,
   ];
 
   const categories = [
-    { id: 'all', name: 'All Poems', icon: '📚' },
-    { id: 'nature', name: 'Nature', icon: '🌈' },
-    { id: 'technology', name: 'Technology', icon: '🤖' },
-    { id: 'bedtime', name: 'Bedtime', icon: '🌙' },
-    { id: 'educational', name: 'Educational', icon: '📖' },
-    { id: 'friendship', name: 'Friendship', icon: '👫' }
+    { id: 'all', name: 'All Performances', icon: '🎪' },
+    { id: 'nature', name: 'Nature Theater', icon: '🌈' },
+    { id: 'technology', name: 'Tech Drama', icon: '🤖' },
+    { id: 'bedtime', name: 'Bedtime Stories', icon: '🌙' },
+    { id: 'educational', name: 'Learning Stage', icon: '🎓' },
+    { id: 'friendship', name: 'Friendship Tales', icon: '🎭' }
   ];
 
   const ageGroups = [
@@ -155,10 +156,16 @@ Stories that will never get old.`,
         </Link>
 
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-4 text-purple-800">Poems for Kids</h1>
-          <p className="text-center text-gray-600 mb-8 text-lg">
-            Beautiful poems to inspire imagination, learning, and joy
-          </p>
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-4 text-purple-800 flex items-center justify-center">
+              <span className="text-5xl mr-3">🎪</span>
+              Poetry Theater
+              <span className="text-5xl ml-3">🎭</span>
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Beautiful poems and theatrical performances to inspire imagination, learning, and joy
+            </p>
+          </div>
 
           {/* Filters */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -269,6 +276,11 @@ Stories that will never get old.`,
               ))}
             </div>
           )}
+
+          {/* Newsletter Subscription */}
+          <div className="mt-12">
+            <NewsletterSubscription />
+          </div>
 
           {/* Call to Action */}
           <div className="mt-12 text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg p-8">

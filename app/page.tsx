@@ -10,6 +10,7 @@ import TrendingStories from './components/TrendingStories';
 import FeaturedCodeStories from './components/FeaturedCodeStories';
 import AgeGroupFilter from './components/AgeGroupFilter';
 import UserTracker from './components/UserTracker';
+import NewsletterSubscription from './components/NewsletterSubscription';
 import Link from 'next/link';
 
 export default function Home() {
@@ -28,6 +29,11 @@ export default function Home() {
 
         {/* Trending Stories Section */}
         <TrendingStories selectedAgeGroup={selectedAgeGroup} />
+
+        {/* Newsletter Subscription Section */}
+        <div className="container mx-auto px-4 py-8">
+          <NewsletterSubscription className="mb-8" />
+        </div>
 
       <div className="container mx-auto px-4 py-8">
         <AgeGroupFilter
@@ -137,15 +143,15 @@ export default function Home() {
           </div>
 
           <div className="bg-yellow-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-yellow-700 mb-3">Poems for Kids</h3>
+            <h3 className="text-xl font-bold text-yellow-700 mb-3">🎪 Poetry Theater</h3>
             <p className="text-gray-600 mb-4">
-              Beautiful poems that inspire imagination and creativity in young minds.
+              Beautiful poems and theatrical performances that inspire imagination and creativity in young minds.
             </p>
             <Link
               href="/poems"
               className="inline-block bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors"
             >
-              Read Poems
+              Visit Poetry Theater
             </Link>
           </div>
 

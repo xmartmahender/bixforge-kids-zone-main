@@ -31,7 +31,7 @@ export default function MainNavigation({ isScrolled }: MainNavigationProps) {
     { href: '/code-stories', label: t('nav.codeStories'), icon: '📚' },
     { href: '/code-videos', label: t('nav.codeVideos'), icon: '🎥' },
     { href: '/code-playground', label: 'Code IDE', icon: '💻' },
-    { href: '/poems', label: t('nav.poems'), icon: '🎭' },
+    { href: '/poems', label: t('nav.poems'), icon: '🎪' },
     { href: '/blog', label: t('nav.blog'), icon: '✍️' },
     { href: '/parents', label: t('nav.parents'), icon: '👪' },
   ];
