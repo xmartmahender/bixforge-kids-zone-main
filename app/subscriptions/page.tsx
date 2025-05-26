@@ -236,7 +236,7 @@ export default function SubscriptionsPage() {
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <FaUsers className="mr-2" />
-                          <span>Ages: {(pkg.ageGroupAccess || pkg.ageGroups || ['All ages']).join(', ')}</span>
+                          <span>Ages: {(pkg.ageGroupAccess || ['All ages']).join(', ')}</span>
                         </div>
                       </div>
                     </div>
