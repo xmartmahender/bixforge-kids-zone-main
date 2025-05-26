@@ -16,11 +16,18 @@ export default function SubscriptionsPage() {
   const [selectedPackage, setSelectedPackage] = useState<SubscriptionPackage | null>(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
-  useEffect(() => {
-    loadPackages();
-    // Initialize default packages if none exist
-    initializeDefaultPackages();
-  }, [initializeDefaultPackages]);
+  const loadPackages = async () => {
+    try {
+      const allPackages = await getSubscriptionPackages();
+      // Only show active packages to users
+      const activePackages = allPackages.filter(pkg => pkg.isActive);
+      setPackages(activePackages);
+    } catch (error) {
+      console.error('Error loading packages:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const initializeDefaultPackages = useCallback(async () => {
     try {
@@ -34,18 +41,13 @@ export default function SubscriptionsPage() {
     }
   }, []);
 
-  const loadPackages = async () => {
-    try {
-      const allPackages = await getSubscriptionPackages();
-      // Only show active packages to users
-      const activePackages = allPackages.filter(pkg => pkg.isActive);
-      setPackages(activePackages);
-    } catch (error) {
-      console.error('Error loading packages:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    loadPackages();
+    // Initialize default packages if none exist
+    initializeDefaultPackages();
+  }, [initializeDefaultPackages]);
+
+
 
   const handlePurchase = (pkg: SubscriptionPackage) => {
     setSelectedPackage(pkg);
