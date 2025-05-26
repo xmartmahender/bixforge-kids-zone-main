@@ -302,6 +302,14 @@ interface PurchaseModalProps {
   onClose: () => void;
 }
 
+interface PaymentConfirmation {
+  transactionId: string;
+  amount: number;
+  paymentMethod: string;
+  timestamp: string;
+  status: string;
+}
+
 function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
   const [userInfo, setUserInfo] = useState({
     name: '',
@@ -350,7 +358,7 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
   };
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [paymentConfirmation, setPaymentConfirmation] = useState<any>(null);
+  const [paymentConfirmation, setPaymentConfirmation] = useState<PaymentConfirmation | null>(null);
 
   const handlePurchase = async () => {
     setIsProcessing(true);
