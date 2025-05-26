@@ -573,7 +573,7 @@ export const addBank = async (bankName: string, bankCode?: string): Promise<stri
     const bankId = uuidv4();
     const now = serverTimestamp();
 
-    const bankData: Omit<BankInfo, 'id'> = {
+    const bankData = {
       name: bankName,
       code: bankCode,
       isActive: true,
