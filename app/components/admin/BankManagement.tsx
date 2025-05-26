@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaBank, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaUniversity, FaCheck, FaTimes } from 'react-icons/fa';
 import { getAvailableBanks, addBank, updateBank, deleteBank, BankInfo } from '../../../lib/subscriptionService';
 
 export default function BankManagement() {
@@ -109,7 +109,7 @@ export default function BankManagement() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-            <FaBank className="mr-3 text-blue-600" />
+            <FaUniversity className="mr-3 text-blue-600" />
             Bank Management
           </h2>
           <p className="text-gray-600">Manage available banks for payment processing</p>
@@ -165,7 +165,7 @@ export default function BankManagement() {
 
       {banks.length === 0 && (
         <div className="text-center py-8">
-          <FaBank className="text-6xl text-gray-400 mx-auto mb-4" />
+          <FaUniversity className="text-6xl text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-600 mb-2">No Banks Available</h3>
           <p className="text-gray-500 mb-4">Add banks to enable payment processing</p>
           <button

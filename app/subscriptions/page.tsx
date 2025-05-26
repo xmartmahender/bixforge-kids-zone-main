@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   FaCrown, FaCheck, FaTimes, FaShoppingCart,
   FaGift, FaUsers, FaDownload, FaHeadset, FaMoneyBillWave
@@ -20,9 +20,9 @@ export default function SubscriptionsPage() {
     loadPackages();
     // Initialize default packages if none exist
     initializeDefaultPackages();
-  }, []);
+  }, [initializeDefaultPackages]);
 
-  const initializeDefaultPackages = async () => {
+  const initializeDefaultPackages = useCallback(async () => {
     try {
       const packages = await getSubscriptionPackages();
       if (packages.length === 0) {
@@ -32,7 +32,7 @@ export default function SubscriptionsPage() {
     } catch (error) {
       console.error('Error initializing packages:', error);
     }
-  };
+  }, []);
 
   const loadPackages = async () => {
     try {
