@@ -283,29 +283,26 @@ Making all your dreams come true.`,
           </div>
         </div>
 
-        {/* Admin Access */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg shadow-md p-8 text-white text-center">
-          <h2 className="text-3xl font-bold mb-4">Admin Dashboard Access</h2>
+        {/* User Experience Focus */}
+        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg shadow-md p-8 text-white text-center">
+          <h2 className="text-3xl font-bold mb-4">Complete User Experience</h2>
           <p className="text-xl mb-6">
-            Experience the full admin dashboard with user management, feedback handling, and subscription control.
+            This demo showcases the user-side features. Admin manages feedback and subscriptions through a separate admin dashboard.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href="/admin"
-              className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Access Admin Dashboard
-            </a>
-            <a
-              href="/admin-login.html"
-              className="bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-800 transition-colors border border-purple-400"
-            >
-              Admin Login
-            </a>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="bg-white/10 rounded-lg p-4">
+              <h3 className="font-semibold mb-2">📝 Feedback Collection</h3>
+              <p>Users submit feedback through the main site</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-4">
+              <h3 className="font-semibold mb-2">🔒 Access Control</h3>
+              <p>Content access based on subscription levels</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-4">
+              <h3 className="font-semibold mb-2">📊 Admin Management</h3>
+              <p>Admins manage everything through separate dashboard</p>
+            </div>
           </div>
-          <p className="text-sm mt-4 text-purple-200">
-            Default credentials: bixforge_admin / BixForge2025!
-          </p>
         </div>
       </div>
 
