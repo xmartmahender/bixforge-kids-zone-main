@@ -297,7 +297,7 @@ export default function FeedbackForm({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               {isSubmitting ? (
                 <>
@@ -306,7 +306,7 @@ export default function FeedbackForm({
                 </>
               ) : (
                 <>
-                  <FaPaperPlane className="mr-2" />
+                  <FaPaperPlane className="mr-2 text-lg" />
                   Send Feedback
                 </>
               )}
@@ -338,9 +338,9 @@ export function FeedbackButton({
     <>
       <button
         onClick={() => setShowFeedback(true)}
-        className={`flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${className}`}
+        className={`flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-xl transform hover:scale-105 ${className}`}
       >
-        <FaComments className="mr-2" />
+        <FaComments className="mr-2 text-lg" />
         Give Feedback
       </button>
 

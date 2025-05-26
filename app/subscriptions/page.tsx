@@ -8,7 +8,7 @@ import {
 import Header from '../components/header';
 import Footer from '../components/footer';
 import { FeedbackButton } from '../components/FeedbackForm';
-import { getSubscriptionPackages, SubscriptionPackage } from '../../lib/subscriptionService';
+import { getSubscriptionPackages, createDefaultSubscriptionPackages, getAvailableBanks, SubscriptionPackage } from '../../lib/subscriptionService';
 
 export default function SubscriptionsPage() {
   const [packages, setPackages] = useState<SubscriptionPackage[]>([]);
@@ -18,7 +18,21 @@ export default function SubscriptionsPage() {
 
   useEffect(() => {
     loadPackages();
+    // Initialize default packages if none exist
+    initializeDefaultPackages();
   }, []);
+
+  const initializeDefaultPackages = async () => {
+    try {
+      const packages = await getSubscriptionPackages();
+      if (packages.length === 0) {
+        await createDefaultSubscriptionPackages();
+        loadPackages(); // Reload after creating defaults
+      }
+    } catch (error) {
+      console.error('Error initializing packages:', error);
+    }
+  };
 
   const loadPackages = async () => {
     try {
@@ -220,7 +234,7 @@ export default function SubscriptionsPage() {
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <FaUsers className="mr-2" />
-                          <span>Ages: {pkg.ageGroupAccess.join(', ')}</span>
+                          <span>Ages: {(pkg.ageGroupAccess || pkg.ageGroups || ['All ages']).join(', ')}</span>
                         </div>
                       </div>
                     </div>
@@ -293,15 +307,74 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
     childAge: '',
     paymentMethod: 'card'
   });
+  const [paymentDetails, setPaymentDetails] = useState({
+    // Credit/Debit Card
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardHolderName: '',
+    // PayPal
+    paypalEmail: '',
+    // Bank Transfer
+    selectedBank: '',
+    accountNumber: '',
+    accountHolderName: ''
+  });
+  const [availableBanks, setAvailableBanks] = useState([]);
+
+  // Load available banks when component mounts
+  useEffect(() => {
+    loadAvailableBanks();
+  }, []);
+
+  const loadAvailableBanks = async () => {
+    try {
+      const banks = await getAvailableBanks();
+      setAvailableBanks(banks.map(bank => bank.name));
+    } catch (error) {
+      console.error('Error loading banks:', error);
+      // Fallback to default banks
+      setAvailableBanks([
+        'HBL Bank',
+        'Mezan Bank',
+        'Allied Bank',
+        'UBL Bank',
+        'MCB Bank',
+        'Standard Chartered',
+        'Faysal Bank',
+        'Bank Alfalah'
+      ]);
+    }
+  };
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [paymentConfirmation, setPaymentConfirmation] = useState(null);
 
   const handlePurchase = async () => {
     setIsProcessing(true);
 
+    // Validate payment details based on method
+    const isValid = validatePaymentDetails();
+    if (!isValid) {
+      setIsProcessing(false);
+      return;
+    }
+
     // Simulate purchase process
     setTimeout(() => {
       setIsProcessing(false);
+
+      // Generate payment confirmation
+      const confirmationId = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      const confirmation = {
+        transactionId: confirmationId,
+        amount: pkg.price,
+        paymentMethod: userInfo.paymentMethod,
+        timestamp: new Date().toISOString(),
+        status: 'completed'
+      };
+
+      setPaymentConfirmation(confirmation);
       setIsSuccess(true);
 
       // Store user subscription info
@@ -318,7 +391,15 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
         duration: pkg.duration,
         purchaseDate: new Date().toISOString(),
         expiryDate: new Date(Date.now() + pkg.duration * 24 * 60 * 60 * 1000).toISOString(),
-        userInfo
+        userInfo,
+        paymentDetails: userInfo.paymentMethod === 'bank' ? {
+          method: userInfo.paymentMethod,
+          bank: paymentDetails.selectedBank,
+          accountNumber: paymentDetails.accountNumber.slice(-4) // Store only last 4 digits
+        } : {
+          method: userInfo.paymentMethod
+        },
+        confirmation
       };
 
       localStorage.setItem('userSubscription', JSON.stringify(subscriptionData));
@@ -327,22 +408,276 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
       setTimeout(() => {
         onClose();
         setIsSuccess(false);
-      }, 3000);
+        setPaymentConfirmation(null);
+      }, 5000);
     }, 2000);
+  };
+
+  const validatePaymentDetails = () => {
+    switch (userInfo.paymentMethod) {
+      case 'card':
+        if (!paymentDetails.cardNumber || !paymentDetails.expiryDate || !paymentDetails.cvv || !paymentDetails.cardHolderName) {
+          alert('Please fill in all card details');
+          return false;
+        }
+        if (paymentDetails.cardNumber.replace(/\s/g, '').length < 16) {
+          alert('Please enter a valid card number');
+          return false;
+        }
+        break;
+      case 'paypal':
+        if (!paymentDetails.paypalEmail) {
+          alert('Please enter your PayPal email');
+          return false;
+        }
+        break;
+      case 'bank':
+        if (!paymentDetails.selectedBank || !paymentDetails.accountNumber || !paymentDetails.accountHolderName) {
+          alert('Please fill in all bank transfer details');
+          return false;
+        }
+        break;
+    }
+    return true;
+  };
+
+  const formatCardNumber = (value) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const renderPaymentMethodForm = () => {
+    switch (userInfo.paymentMethod) {
+      case 'card':
+        return (
+          <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-semibold text-gray-800 mb-3">💳 Card Details</h4>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Card Holder Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={paymentDetails.cardHolderName}
+                onChange={(e) => setPaymentDetails({ ...paymentDetails, cardHolderName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                placeholder="John Doe"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Card Number *
+              </label>
+              <input
+                type="text"
+                required
+                value={paymentDetails.cardNumber}
+                onChange={(e) => setPaymentDetails({ ...paymentDetails, cardNumber: formatCardNumber(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                placeholder="1234 5678 9012 3456"
+                maxLength="19"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Expiry Date *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={paymentDetails.expiryDate}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 2) {
+                      value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                    }
+                    setPaymentDetails({ ...paymentDetails, expiryDate: value });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  placeholder="MM/YY"
+                  maxLength="5"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CVV *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={paymentDetails.cvv}
+                  onChange={(e) => setPaymentDetails({ ...paymentDetails, cvv: e.target.value.replace(/\D/g, '') })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  placeholder="123"
+                  maxLength="4"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'paypal':
+        return (
+          <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-semibold text-gray-800 mb-3">🅿️ PayPal Details</h4>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                PayPal Email Address *
+              </label>
+              <input
+                type="email"
+                required
+                value={paymentDetails.paypalEmail}
+                onChange={(e) => setPaymentDetails({ ...paymentDetails, paypalEmail: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                placeholder="your-email@example.com"
+              />
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                💡 You will be redirected to PayPal to complete your payment securely.
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'bank':
+        return (
+          <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-semibold text-gray-800 mb-3">🏦 Bank Transfer Details</h4>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Bank *
+              </label>
+              <select
+                required
+                value={paymentDetails.selectedBank}
+                onChange={(e) => setPaymentDetails({ ...paymentDetails, selectedBank: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="">Choose your bank</option>
+                {availableBanks.map((bank, index) => (
+                  <option key={index} value={bank}>{bank}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Account Holder Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={paymentDetails.accountHolderName}
+                onChange={(e) => setPaymentDetails({ ...paymentDetails, accountHolderName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                placeholder="Account holder full name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Account Number *
+              </label>
+              <input
+                type="text"
+                required
+                value={paymentDetails.accountNumber}
+                onChange={(e) => setPaymentDetails({ ...paymentDetails, accountNumber: e.target.value.replace(/\D/g, '') })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                placeholder="Your bank account number"
+              />
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <p className="text-sm text-yellow-800">
+                ⚠️ Please ensure your account details are correct. Bank transfers may take 1-3 business days to process.
+              </p>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   if (isSuccess) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+        <div className="bg-white rounded-lg p-8 max-w-lg mx-4 text-center">
           <div className="text-6xl mb-4">🎉</div>
-          <h3 className="text-2xl font-bold text-green-600 mb-2">Purchase Successful!</h3>
-          <p className="text-gray-600 mb-4">
+          <h3 className="text-2xl font-bold text-green-600 mb-2">Payment Successful!</h3>
+          <p className="text-gray-600 mb-6">
             Welcome to {pkg.name}! Your subscription is now active.
           </p>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-sm text-green-800">
-              You now have access to all {pkg.name} features. Enjoy learning!
+
+          {/* Payment Confirmation Details */}
+          {paymentConfirmation && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6 text-left">
+              <h4 className="font-bold text-green-800 mb-3 text-center">Payment Confirmation</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Transaction ID:</span>
+                  <span className="font-mono text-green-700">{paymentConfirmation.transactionId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Amount Paid:</span>
+                  <span className="font-semibold text-green-700">${paymentConfirmation.amount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Payment Method:</span>
+                  <span className="capitalize text-green-700">
+                    {paymentConfirmation.paymentMethod === 'card' ? 'Credit/Debit Card' :
+                     paymentConfirmation.paymentMethod === 'paypal' ? 'PayPal' :
+                     paymentConfirmation.paymentMethod === 'bank' ? 'Bank Transfer' :
+                     paymentConfirmation.paymentMethod}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Date & Time:</span>
+                  <span className="text-green-700">
+                    {new Date(paymentConfirmation.timestamp).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-semibold text-green-700 uppercase">
+                    ✅ {paymentConfirmation.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-blue-800">
+              📧 A confirmation email has been sent to {userInfo.email}
+            </p>
+          </div>
+
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <p className="text-sm text-purple-800">
+              🎯 You now have access to all {pkg.name} features. Enjoy learning!
             </p>
           </div>
         </div>
@@ -422,20 +757,83 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
           </div>
 
           {pkg.price > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Payment Method
-              </label>
-              <select
-                value={userInfo.paymentMethod}
-                onChange={(e) => setUserInfo({ ...userInfo, paymentMethod: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="card">Credit/Debit Card</option>
-                <option value="paypal">PayPal</option>
-                <option value="bank">Bank Transfer</option>
-              </select>
-            </div>
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Payment Method *
+                </label>
+                <div className="grid grid-cols-1 gap-3">
+                  {/* Credit/Debit Card Option */}
+                  <label className={`
+                    flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all
+                    ${userInfo.paymentMethod === 'card' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}
+                  `}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="card"
+                      checked={userInfo.paymentMethod === 'card'}
+                      onChange={(e) => setUserInfo({ ...userInfo, paymentMethod: e.target.value })}
+                      className="mr-3"
+                    />
+                    <div className="flex items-center">
+                      <div className="text-2xl mr-3">💳</div>
+                      <div>
+                        <div className="font-semibold text-gray-800">Credit/Debit Card</div>
+                        <div className="text-sm text-gray-500">Visa, Mastercard, etc.</div>
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* PayPal Option */}
+                  <label className={`
+                    flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all
+                    ${userInfo.paymentMethod === 'paypal' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}
+                  `}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="paypal"
+                      checked={userInfo.paymentMethod === 'paypal'}
+                      onChange={(e) => setUserInfo({ ...userInfo, paymentMethod: e.target.value })}
+                      className="mr-3"
+                    />
+                    <div className="flex items-center">
+                      <div className="text-2xl mr-3">🅿️</div>
+                      <div>
+                        <div className="font-semibold text-gray-800">PayPal</div>
+                        <div className="text-sm text-gray-500">Pay with your PayPal account</div>
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Bank Transfer Option */}
+                  <label className={`
+                    flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all
+                    ${userInfo.paymentMethod === 'bank' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}
+                  `}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="bank"
+                      checked={userInfo.paymentMethod === 'bank'}
+                      onChange={(e) => setUserInfo({ ...userInfo, paymentMethod: e.target.value })}
+                      className="mr-3"
+                    />
+                    <div className="flex items-center">
+                      <div className="text-2xl mr-3">🏦</div>
+                      <div>
+                        <div className="font-semibold text-gray-800">Bank Transfer</div>
+                        <div className="text-sm text-gray-500">Direct bank account transfer</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Payment Method Specific Forms */}
+              {renderPaymentMethodForm()}
+            </>
           )}
 
           <button

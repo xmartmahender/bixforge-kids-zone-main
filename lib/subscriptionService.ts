@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 const USERS_COLLECTION = 'users';
 const FEEDBACK_COLLECTION = 'userFeedback';
 const SUBSCRIPTION_PACKAGES_COLLECTION = 'subscriptionPackages';
+const BANKS_COLLECTION = 'availableBanks';
 
 // Subscription Package Types
 export interface SubscriptionPackage {
@@ -483,5 +484,177 @@ export const checkUserAccess = async (
   } catch (error) {
     console.error('Error checking user access:', error);
     return false;
+  }
+};
+
+// Bank Management Types and Functions
+export interface BankInfo {
+  id: string;
+  name: string;
+  code?: string;
+  isActive: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// Get all available banks
+export const getAvailableBanks = async (): Promise<BankInfo[]> => {
+  try {
+    // First try to get from Firebase
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, BANKS_COLLECTION),
+        orderBy('name', 'asc')
+      )
+    );
+
+    const banks: BankInfo[] = [];
+    querySnapshot.forEach((doc) => {
+      const bankData = { id: doc.id, ...doc.data() } as BankInfo;
+      if (bankData.isActive) {
+        banks.push(bankData);
+      }
+    });
+
+    if (banks.length > 0) {
+      return banks;
+    }
+
+    // Fallback to localStorage
+    const localBanks = localStorage.getItem('availableBanks');
+    if (localBanks) {
+      return JSON.parse(localBanks);
+    }
+
+    // Return default banks if none exist
+    return getDefaultBanks();
+  } catch (error) {
+    console.error('Error fetching banks:', error);
+
+    // Fallback to localStorage
+    try {
+      const localBanks = localStorage.getItem('availableBanks');
+      if (localBanks) {
+        return JSON.parse(localBanks);
+      }
+      return getDefaultBanks();
+    } catch (localError) {
+      console.error('Error getting local banks:', localError);
+      return getDefaultBanks();
+    }
+  }
+};
+
+// Get default banks
+const getDefaultBanks = (): BankInfo[] => {
+  const defaultBanks = [
+    'HBL Bank',
+    'Mezan Bank',
+    'Allied Bank',
+    'UBL Bank',
+    'MCB Bank',
+    'Standard Chartered',
+    'Faysal Bank',
+    'Bank Alfalah'
+  ];
+
+  return defaultBanks.map((name, index) => ({
+    id: `bank_${index + 1}`,
+    name,
+    isActive: true,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now()
+  }));
+};
+
+// Add a new bank
+export const addBank = async (bankName: string, bankCode?: string): Promise<string> => {
+  try {
+    const bankId = uuidv4();
+    const now = serverTimestamp();
+
+    const bankData: Omit<BankInfo, 'id'> = {
+      name: bankName,
+      code: bankCode,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    await setDoc(doc(db, BANKS_COLLECTION, bankId), {
+      ...bankData,
+      id: bankId
+    });
+
+    // Also update localStorage as backup
+    const existingBanks = await getAvailableBanks();
+    const updatedBanks = [...existingBanks, { ...bankData, id: bankId, createdAt: Timestamp.now(), updatedAt: Timestamp.now() }];
+    localStorage.setItem('availableBanks', JSON.stringify(updatedBanks));
+
+    return bankId;
+  } catch (error) {
+    console.error('Error adding bank:', error);
+    throw error;
+  }
+};
+
+// Update bank
+export const updateBank = async (bankId: string, updates: Partial<BankInfo>): Promise<boolean> => {
+  try {
+    await updateDoc(doc(db, BANKS_COLLECTION, bankId), {
+      ...updates,
+      updatedAt: serverTimestamp()
+    });
+
+    // Update localStorage backup
+    const existingBanks = await getAvailableBanks();
+    const updatedBanks = existingBanks.map(bank =>
+      bank.id === bankId ? { ...bank, ...updates, updatedAt: Timestamp.now() } : bank
+    );
+    localStorage.setItem('availableBanks', JSON.stringify(updatedBanks));
+
+    return true;
+  } catch (error) {
+    console.error('Error updating bank:', error);
+    return false;
+  }
+};
+
+// Delete bank (set inactive)
+export const deleteBank = async (bankId: string): Promise<boolean> => {
+  try {
+    await updateDoc(doc(db, BANKS_COLLECTION, bankId), {
+      isActive: false,
+      updatedAt: serverTimestamp()
+    });
+
+    // Update localStorage backup
+    const existingBanks = await getAvailableBanks();
+    const updatedBanks = existingBanks.filter(bank => bank.id !== bankId);
+    localStorage.setItem('availableBanks', JSON.stringify(updatedBanks));
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting bank:', error);
+    return false;
+  }
+};
+
+// Initialize default banks
+export const initializeDefaultBanks = async (): Promise<void> => {
+  try {
+    const existingBanks = await getAvailableBanks();
+    if (existingBanks.length === 0) {
+      const defaultBanks = getDefaultBanks();
+
+      for (const bank of defaultBanks) {
+        await setDoc(doc(db, BANKS_COLLECTION, bank.id), bank);
+      }
+
+      localStorage.setItem('availableBanks', JSON.stringify(defaultBanks));
+      console.log('Default banks initialized successfully');
+    }
+  } catch (error) {
+    console.error('Error initializing default banks:', error);
   }
 };
