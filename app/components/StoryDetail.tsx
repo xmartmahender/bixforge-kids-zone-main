@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Story } from '../../lib/storyService';
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { FeedbackButton } from './FeedbackForm';
 
 interface StoryDetailProps {
   storyId: string;
@@ -271,6 +272,16 @@ export default function StoryDetail({ storyId }: StoryDetailProps) {
               <p className="text-xl text-gray-600">No content available for this story.</p>
             </div>
           )}
+
+          {/* Feedback Section */}
+          <div className="mt-8 pt-6 border-t border-gray-200 flex justify-center">
+            <FeedbackButton
+              contentId={story.id}
+              contentType="story"
+              contentTitle={getTranslatedTitle()}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            />
+          </div>
         </div>
 
         {/* Practice Code Section - Only for Code Stories */}

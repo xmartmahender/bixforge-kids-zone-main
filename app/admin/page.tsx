@@ -1,8 +1,12 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import SubscriptionDashboard from '../components/admin/SubscriptionDashboard';
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     // Check if user is already authenticated
     const sessionData = localStorage.getItem('bixforge_admin_session');
@@ -12,8 +16,9 @@ export default function AdminPage() {
       const expiresAt = new Date(session.expiresAt);
 
       if (now < expiresAt) {
-        // User is authenticated, redirect to dashboard
-        window.location.href = '/admin-dashboard.html';
+        // User is authenticated, show integrated dashboard
+        setIsAuthenticated(true);
+        setIsLoading(false);
         return;
       }
     }
@@ -21,6 +26,21 @@ export default function AdminPage() {
     // User is not authenticated, redirect to login
     window.location.href = '/admin-login.html';
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading Admin Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <SubscriptionDashboard />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
