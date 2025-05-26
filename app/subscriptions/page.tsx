@@ -322,7 +322,7 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
     accountNumber: '',
     accountHolderName: ''
   });
-  const [availableBanks, setAvailableBanks] = useState([]);
+  const [availableBanks, setAvailableBanks] = useState<string[]>([]);
 
   // Load available banks when component mounts
   useEffect(() => {
@@ -350,7 +350,7 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
   };
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [paymentConfirmation, setPaymentConfirmation] = useState(null);
+  const [paymentConfirmation, setPaymentConfirmation] = useState<any>(null);
 
   const handlePurchase = async () => {
     setIsProcessing(true);
@@ -443,7 +443,7 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
     return true;
   };
 
-  const formatCardNumber = (value) => {
+  const formatCardNumber = (value: string) => {
     const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
     const matches = v.match(/\d{4,16}/g);
     const match = matches && matches[0] || '';
