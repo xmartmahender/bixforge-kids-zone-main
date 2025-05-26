@@ -11,6 +11,7 @@ import FeaturedCodeStories from './components/FeaturedCodeStories';
 import AgeGroupFilter from './components/AgeGroupFilter';
 import UserTracker from './components/UserTracker';
 import NewsletterSubscription from './components/NewsletterSubscription';
+import { FeedbackButton } from './components/FeedbackForm';
 import Link from 'next/link';
 
 export default function Home() {
@@ -179,6 +180,22 @@ export default function Home() {
             >
               Parents Information
             </Link>
+          </div>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 mt-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-4">We Value Your Feedback!</h2>
+            <p className="text-xl mb-8 opacity-90">
+              Help us improve BixForge Kids Zone by sharing your thoughts and suggestions
+            </p>
+            <FeedbackButton
+              contentId="main-page"
+              contentType="story"
+              contentTitle="BixForge Kids Zone Main Page"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
+            />
           </div>
         </div>
 

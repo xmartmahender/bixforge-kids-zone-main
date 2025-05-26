@@ -225,23 +225,50 @@ export const createDefaultSubscriptionPackages = async () => {
 // Get all subscription packages
 export const getSubscriptionPackages = async (): Promise<SubscriptionPackage[]> => {
   try {
+    // First try to get from Firebase
     const querySnapshot = await getDocs(
       query(
         collection(db, SUBSCRIPTION_PACKAGES_COLLECTION),
-        where('isActive', '==', true),
         orderBy('price', 'asc')
       )
     );
 
     const packages: SubscriptionPackage[] = [];
     querySnapshot.forEach((doc) => {
-      packages.push({ id: doc.id, ...doc.data() } as SubscriptionPackage);
+      const packageData = { id: doc.id, ...doc.data() } as SubscriptionPackage;
+      // Only include active packages for users
+      if (packageData.isActive) {
+        packages.push(packageData);
+      }
     });
 
-    return packages;
+    if (packages.length > 0) {
+      return packages;
+    }
+
+    // Fallback to localStorage for admin-created packages
+    const localPackages = localStorage.getItem('subscriptionPackages');
+    if (localPackages) {
+      const parsedPackages = JSON.parse(localPackages);
+      return parsedPackages.filter((pkg: SubscriptionPackage) => pkg.isActive);
+    }
+
+    return [];
   } catch (error) {
     console.error('Error fetching subscription packages:', error);
-    return [];
+
+    // Fallback to localStorage if Firebase fails
+    try {
+      const localPackages = localStorage.getItem('subscriptionPackages');
+      if (localPackages) {
+        const parsedPackages = JSON.parse(localPackages);
+        return parsedPackages.filter((pkg: SubscriptionPackage) => pkg.isActive);
+      }
+      return [];
+    } catch (localError) {
+      console.error('Error getting local packages:', localError);
+      return [];
+    }
   }
 };
 

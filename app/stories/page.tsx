@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import StoriesList from '../components/StoriesList';
+import { FeedbackButton } from '../components/FeedbackForm';
 import AgeGroupFilter from '../components/AgeGroupFilter';
 
 export default function StoriesPage() {
@@ -88,6 +89,22 @@ export default function StoriesPage() {
                 <p className="text-gray-600">Interactive stories that introduce programming concepts.</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold mb-4">Love Our Stories?</h2>
+            <p className="text-xl mb-8 opacity-90">
+              Share your thoughts and help us create even better stories for children!
+            </p>
+            <FeedbackButton
+              contentId="stories-page"
+              contentType="story"
+              contentTitle="Stories Library Page"
+              className="bg-white text-purple-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
+            />
           </div>
         </div>
       </div>

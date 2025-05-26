@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 export default function AdminPage() {
   useEffect(() => {
     // Always redirect to external admin site
-    window.location.href = '/kidz-zone-admin/admin-login.html';
+    window.location.href = '/kidz-zone-admin/index.html';
   }, []);
 
   return (
@@ -17,8 +17,8 @@ export default function AdminPage() {
           Admin functions are managed through the separate admin dashboard.
         </p>
         <p className="text-purple-200">
-          Redirecting to admin login...
-          <a href="/kidz-zone-admin/admin-login.html" className="text-yellow-400 hover:underline ml-1">
+          Redirecting to admin dashboard...
+          <a href="/kidz-zone-admin/index.html" className="text-yellow-400 hover:underline ml-1">
             Click here if not redirected
           </a>
         </p>

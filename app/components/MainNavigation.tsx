@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LanguageSelector, { useLanguage } from './LanguageSelector';
 import { useTranslation } from '../lib/translations';
+import { FeedbackButton } from './FeedbackForm';
 
 interface MainNavigationProps {
   isScrolled: boolean;
@@ -33,6 +34,7 @@ export default function MainNavigation({ isScrolled }: MainNavigationProps) {
     { href: '/code-playground', label: 'Code IDE', icon: '💻' },
     { href: '/poems', label: t('nav.poems'), icon: '🎪' },
     { href: '/blog', label: t('nav.blog'), icon: '✍️' },
+    { href: '/subscriptions', label: 'Subscriptions', icon: '👑' },
     { href: '/parents', label: t('nav.parents'), icon: '👪' },
   ];
 
@@ -126,6 +128,15 @@ export default function MainNavigation({ isScrolled }: MainNavigationProps) {
           </div>
 
           <div className="flex items-center space-x-4">
+            <FeedbackButton
+              className={`
+                px-3 py-2 rounded-lg transition-all duration-300 text-sm
+                ${isScrolled
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+                }
+              `}
+            />
             <div className={`
               px-3 py-2 rounded-lg transition-all duration-300
               ${isScrolled ? 'bg-purple-50' : 'bg-white/10'}
@@ -179,11 +190,22 @@ export default function MainNavigation({ isScrolled }: MainNavigationProps) {
               mt-6 pt-4 border-t
               ${isScrolled ? 'border-purple-200' : 'border-white/20'}
             `}>
-              <div className={`
-                p-3 rounded-xl
-                ${isScrolled ? 'bg-purple-50' : 'bg-white/10'}
-              `}>
-                <LanguageSelector />
+              <div className="space-y-3">
+                <FeedbackButton
+                  className={`
+                    w-full p-3 rounded-xl transition-all duration-300 text-sm
+                    ${isScrolled
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-white/20 text-white hover:bg-white/30'
+                    }
+                  `}
+                />
+                <div className={`
+                  p-3 rounded-xl
+                  ${isScrolled ? 'bg-purple-50' : 'bg-white/10'}
+                `}>
+                  <LanguageSelector />
+                </div>
               </div>
             </div>
           </div>
