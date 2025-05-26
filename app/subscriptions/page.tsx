@@ -498,7 +498,7 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
                 onChange={(e) => setPaymentDetails({ ...paymentDetails, cardNumber: formatCardNumber(e.target.value) })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
                 placeholder="1234 5678 9012 3456"
-                maxLength="19"
+                maxLength={19}
               />
             </div>
 
@@ -520,7 +520,7 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
                   placeholder="MM/YY"
-                  maxLength="5"
+                  maxLength={5}
                 />
               </div>
               <div>
@@ -534,7 +534,7 @@ function PurchaseModal({ package: pkg, onClose }: PurchaseModalProps) {
                   onChange={(e) => setPaymentDetails({ ...paymentDetails, cvv: e.target.value.replace(/\D/g, '') })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
                   placeholder="123"
-                  maxLength="4"
+                  maxLength={4}
                 />
               </div>
             </div>
